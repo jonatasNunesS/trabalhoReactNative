@@ -4,10 +4,9 @@ import { Text, View, StyleSheet } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 /* Pages */
-import HomePage from "./pages/homePage";
+import HomePage from "./pages/HomePage";
 import PerfilPage from "./pages/perfilPage";
 import ConfiguracoesPage from "./pages/configPage";
-import SchedulingPage from "./pages/SchedulingPage";
 
 /* Componentes */
 import MenuMobile from "./components/menuMobile";
@@ -38,8 +37,6 @@ export default function App() {
         return <PerfilPage />;
       case "configuracoes":
         return <ConfiguracoesPage />;
-      case "scheduling":
-        return <SchedulingPage />;
       default:
         return <HomePage />;
     }
@@ -63,7 +60,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff", // cor de fundo geral
   },
   containerGeral: {
-    display: "flex",
     flex: 1,
   },
 });

@@ -9,7 +9,7 @@ import {
 
 const menuItems = [
   { id: "1", title: "home" },
-  { id: "2", title: "scheduling" },
+  { id: "2", title: "agendamento" },
   { id: "3", title: "perfil" },
   { id: "4", title: "configuracoes" },
 ];

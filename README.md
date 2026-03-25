@@ -1,6 +1,7 @@
 # trabalhoReactNative
 
 /*Frontend*/
+npm install -g expo-cli
 npm install axios
 expo install @expo/vector-icons
 expo install react-native-paper

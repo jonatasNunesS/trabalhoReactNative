@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ActivityIndicator,
   Dimensions,
+  FlatList,
   Image,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -13,6 +14,11 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+
+import { Card } from "react-native-paper";
+import CardAgendamento from "../components/cardAgendamentos";
+
+import { getInitials, formatPrice } from "../utils/utilidades";
 
 const HORIZONTAL_PADDING = 20;
 const GRID_GAP = 12;
@@ -196,26 +202,25 @@ function buildPageData(apiData) {
   };
 }
 
-export default function SchedulingPage({ navigation }) {
+export default function AgendamentoPage({ navigation }) {
   const { width } = useWindowDimensions();
 
   const isTablet = width >= 768;
   const serviceCardWidth = isTablet
     ? (width - HORIZONTAL_PADDING * 2 - GRID_GAP) / 2
     : width - HORIZONTAL_PADDING * 2;
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
   const [pageData, setPageData] = useState(buildPageData({}));
 
-  const fetchSchedulingData = useCallback(async () => {
+  const fetchAgendamentoData = useCallback(async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/scheduling-page`);
+      const response = await fetch(`${API_BASE_URL}/Agendamento-page`);
 
       if (!response.ok) {
         throw new Error("Falha ao buscar dados da página");
       }
-
       const data = await response.json();
       setPageData(buildPageData(data));
     } catch (error) {
@@ -228,48 +233,12 @@ export default function SchedulingPage({ navigation }) {
   }, []);
 
   useEffect(() => {
-    fetchSchedulingData();
-  }, [fetchSchedulingData]);
+    fetchAgendamentoData();
+  }, [fetchAgendamentoData]);
 
   const onRefresh = () => {
     setRefreshing(true);
-    fetchSchedulingData();
-  };
-
-  const formatDateTime = (value) => {
-    if (!value) return "25/03/2026 - 14:00";
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-      return value;
-    }
-
-    const formattedDate = date.toLocaleDateString("pt-BR");
-    const formattedTime = date.toLocaleTimeString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-    return `${formattedDate} - ${formattedTime}`;
-  };
-
-  const formatPrice = (value) => {
-    if (typeof value !== "number") return "R$ 0,00";
-
-    return value.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
-  };
-
-  const getInitials = (text = "") => {
-    return text
-      .split(" ")
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((word) => word[0]?.toUpperCase())
-      .join("");
+    fetchAgendamentoData();
   };
 
   const handleViewDetails = (appointment) => {
@@ -302,49 +271,6 @@ export default function SchedulingPage({ navigation }) {
     return <View style={styles.headerLogoFallback} />;
   };
 
-  const renderAppointmentCard = (appointment) => {
-    return (
-      <View key={appointment.id} style={styles.appointmentCard}>
-        <View style={styles.appointmentTop}>
-          {appointment.barberAvatar ? (
-            <Image
-              source={{ uri: appointment.barberAvatar }}
-              style={styles.barberAvatar}
-            />
-          ) : (
-            <View style={styles.avatarFallback}>
-              <Text style={styles.avatarFallbackText}>
-                {getInitials(appointment.barberName)}
-              </Text>
-            </View>
-          )}
-
-          <View style={styles.appointmentInfo}>
-            <Text style={styles.barberName} numberOfLines={1}>
-              {appointment.barberName}
-            </Text>
-            <Text style={styles.serviceName} numberOfLines={2}>
-              {appointment.serviceName}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.divider} />
-
-        <Text style={styles.dateText}>
-          {formatDateTime(appointment.dateTime)}
-        </Text>
-
-        <TouchableOpacity
-          style={styles.detailsButton}
-          activeOpacity={0.85}
-          onPress={() => handleViewDetails(appointment)}
-        >
-          <Text style={styles.detailsButtonText}>Ver Detalhes</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  };
 
   const renderServiceCard = (service) => {
     const barberNames = Array.isArray(service.availableBarbers)
@@ -415,11 +341,13 @@ export default function SchedulingPage({ navigation }) {
       />
 
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+      
+        contentContainerStyle={{paddingBottom: 30 }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
+        alwaysBounceVertical={true} 
       >
         <View
           style={[
@@ -438,7 +366,28 @@ export default function SchedulingPage({ navigation }) {
         <View style={styles.content}>
           <Text style={styles.sectionTitle}>Próximos Agendamentos</Text>
 
-          {pageData.upcomingAppointments.map(renderAppointmentCard)}
+          <View style={styles.cardAgendamentoContain}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 10 }}
+            >
+              {pageData.upcomingAppointments.length > 0 ? (
+                pageData.upcomingAppointments.map((appointment) => (
+                  <CardAgendamento
+                    key={appointment.id}
+                    appointment={appointment}
+                    onViewDetails={() => handleViewDetails(appointment)}
+                  />
+                ))
+              ) : (
+                <Text style={{ color: "#6B7280", textAlign: "center", marginTop: 20 }}>
+                  Nenhum agendamento encontrado.
+                </Text>
+              )}
+            </ScrollView>
+          </View>
+
 
           <View style={styles.sectionDivider} />
 
@@ -475,7 +424,8 @@ const styles = StyleSheet.create({
   },
 
   scrollContent: {
-    paddingBottom: 30,
+     flexGrow: 1,
+  paddingBottom: 30,
   },
 
   header: {
@@ -517,101 +467,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: HORIZONTAL_PADDING,
     paddingTop: 22,
   },
+  cardAgendamentoContain: {
+    width: "100%",
 
+  },
   sectionTitle: {
-    fontSize: 30,
+    fontSize: 24,
     fontWeight: "800",
     color: "#111827",
     marginBottom: 16,
-  },
-
-  appointmentCard: {
-    backgroundColor: "#FFFFFF",
-    borderWidth: 2,
-    borderColor: "#22B8B0",
-    borderRadius: 18,
-    padding: 18,
-    marginBottom: 16,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-
-  appointmentTop: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  barberAvatar: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    marginRight: 14,
-    backgroundColor: "#E5E7EB",
-  },
-
-  avatarFallback: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    marginRight: 14,
-    backgroundColor: "#D1D5DB",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  avatarFallbackText: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: "#374151",
-  },
-
-  appointmentInfo: {
-    flex: 1,
-  },
-
-  barberName: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: "#111827",
-    marginBottom: 6,
-  },
-
-  serviceName: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#1E40AF",
-  },
-
-  divider: {
-    height: 1,
-    backgroundColor: "#E5E7EB",
-    marginVertical: 16,
-  },
-
-  dateText: {
-    fontSize: 18,
-    fontWeight: "500",
-    color: "#111827",
-    textAlign: "center",
-    marginBottom: 16,
-  },
-
-  detailsButton: {
-    borderWidth: 2,
-    borderColor: "#1E40AF",
-    borderRadius: 12,
-    paddingVertical: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  detailsButtonText: {
-    color: "#1E40AF",
-    fontSize: 16,
-    fontWeight: "800",
   },
 
   sectionDivider: {
