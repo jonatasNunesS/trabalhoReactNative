@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ActivityIndicator,
-  Dimensions,
   FlatList,
   Image,
   RefreshControl,
@@ -15,24 +14,13 @@ import {
   useWindowDimensions,
 } from "react-native";
 
-import { Card } from "react-native-paper";
 import CardAgendamento from "../components/cardAgendamentos";
-
 import { getInitials, formatPrice } from "../utils/utilidades";
 
 const HORIZONTAL_PADDING = 20;
 const GRID_GAP = 12;
-
-// Troque pela URL real da sua API
 const API_BASE_URL = "http://SEU_IP_OU_DOMINIO:3000";
 
-/**
- * DADOS DE EXEMPLO
- * Serão usados quando:
- * - a API retornar arrays vazios
- * - algum campo vier vazio/null
- * - a API falhar
- */
 const EXAMPLE_DATA = {
   shop: {
     name: "Barbearia Premium",
@@ -78,25 +66,6 @@ const EXAMPLE_DATA = {
         { id: "b3", name: "Rafael Costa" },
       ],
     },
-    {
-      id: "example-service-3",
-      name: "Corte + Barba",
-      price: 80,
-      image:
-        "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=800&q=80",
-      availableBarbers: [
-        { id: "b1", name: "Carlos Mendes" },
-        { id: "b3", name: "Rafael Costa" },
-      ],
-    },
-    {
-      id: "example-service-4",
-      name: "Sobrancelha",
-      price: 30,
-      image:
-        "https://images.unsplash.com/photo-1512690459411-b0fd1c86b8b8?auto=format&fit=crop&w=800&q=80",
-      availableBarbers: [{ id: "b4", name: "Lucas Ferreira" }],
-    },
   ],
 };
 
@@ -116,95 +85,20 @@ function normalizeShop(shop) {
   };
 }
 
-function normalizeAppointment(item, index) {
-  const example =
-    EXAMPLE_DATA.upcomingAppointments[
-      index % EXAMPLE_DATA.upcomingAppointments.length
-    ];
-
-  return {
-    id: item?.id ?? example.id,
-    barberName: isFilledString(item?.barberName)
-      ? item.barberName
-      : example.barberName,
-    barberAvatar: isFilledString(item?.barberAvatar)
-      ? item.barberAvatar
-      : example.barberAvatar,
-    serviceName: isFilledString(item?.serviceName)
-      ? item.serviceName
-      : example.serviceName,
-    dateTime: isFilledString(item?.dateTime) ? item.dateTime : example.dateTime,
-  };
-}
-
-function normalizeService(item, index) {
-  const example =
-    EXAMPLE_DATA.popularServices[index % EXAMPLE_DATA.popularServices.length];
-
-  const validPrice =
-    typeof item?.price === "number" && !Number.isNaN(item.price)
-      ? item.price
-      : example.price;
-
-  const availableBarbers =
-    Array.isArray(item?.availableBarbers) && item.availableBarbers.length > 0
-      ? item.availableBarbers.map((barber, barberIndex) => {
-          const exampleBarber =
-            example.availableBarbers[
-              barberIndex % example.availableBarbers.length
-            ] || example.availableBarbers[0];
-
-          return {
-            id: barber?.id ?? exampleBarber.id,
-            name: isFilledString(barber?.name)
-              ? barber.name
-              : exampleBarber.name,
-          };
-        })
-      : example.availableBarbers;
-
-  return {
-    id: item?.id ?? example.id,
-    name: isFilledString(item?.name) ? item.name : example.name,
-    price: validPrice,
-    image: isFilledString(item?.image) ? item.image : example.image,
-    availableBarbers,
-  };
-}
-
 function buildPageData(apiData) {
-  const rawAppointments = Array.isArray(apiData?.upcomingAppointments)
-    ? apiData.upcomingAppointments
-    : [];
-
-  const rawServices = Array.isArray(apiData?.popularServices)
-    ? apiData.popularServices
-    : [];
-
-  const normalizedAppointments =
-    rawAppointments.length > 0
-      ? rawAppointments.map((item, index) => normalizeAppointment(item, index))
-      : EXAMPLE_DATA.upcomingAppointments.map((item, index) =>
-          normalizeAppointment(item, index),
-        );
-
-  const normalizedServices =
-    rawServices.length > 0
-      ? rawServices.map((item, index) => normalizeService(item, index))
-      : EXAMPLE_DATA.popularServices.map((item, index) =>
-          normalizeService(item, index),
-        );
-
   return {
     shop: normalizeShop(apiData?.shop),
-    upcomingAppointments: normalizedAppointments,
-    popularServices: normalizedServices,
+    upcomingAppointments: Array.isArray(apiData?.upcomingAppointments) && apiData.upcomingAppointments.length > 0
+      ? apiData.upcomingAppointments
+      : EXAMPLE_DATA.upcomingAppointments,
+    popularServices: Array.isArray(apiData?.popularServices) && apiData.popularServices.length > 0
+      ? apiData.popularServices
+      : EXAMPLE_DATA.popularServices,
   };
 }
 
-export default function AgendamentoPage({ navigation }) {
+export default function AgendamentoPage({ navigation, setServicoSelecionado }) {
   const { width } = useWindowDimensions();
-
   const isTablet = width >= 768;
   const serviceCardWidth = isTablet
     ? (width - HORIZONTAL_PADDING * 2 - GRID_GAP) / 2
@@ -217,10 +111,7 @@ export default function AgendamentoPage({ navigation }) {
   const fetchAgendamentoData = useCallback(async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/Agendamento-page`);
-
-      if (!response.ok) {
-        throw new Error("Falha ao buscar dados da página");
-      }
+      if (!response.ok) throw new Error("Falha ao buscar dados da página");
       const data = await response.json();
       setPageData(buildPageData(data));
     } catch (error) {
@@ -242,35 +133,13 @@ export default function AgendamentoPage({ navigation }) {
   };
 
   const handleViewDetails = (appointment) => {
-    if (navigation?.navigate) {
-      navigation.navigate("AppointmentDetails", {
-        appointmentId: appointment.id,
-      });
-    }
+    navigation.navigate("AppointmentDetails", { appointmentId: appointment.id });
   };
 
   const handleScheduleService = (service) => {
-    if (navigation?.navigate) {
-      navigation.navigate("CreateAppointment", {
-        serviceId: service.id,
-      });
-    }
+    setServicoSelecionado(service);
+    navigation.navigate("Horarios");
   };
-
-  const renderHeaderLogo = () => {
-    if (pageData.shop.logoUrl) {
-      return (
-        <Image
-          source={{ uri: pageData.shop.logoUrl }}
-          style={styles.headerLogoImage}
-          resizeMode="cover"
-        />
-      );
-    }
-
-    return <View style={styles.headerLogoFallback} />;
-  };
-
 
   const renderServiceCard = (service) => {
     const barberNames = Array.isArray(service.availableBarbers)
@@ -280,13 +149,7 @@ export default function AgendamentoPage({ navigation }) {
     return (
       <View
         key={service.id}
-        style={[
-          styles.serviceCard,
-          {
-            width: serviceCardWidth,
-            marginRight: isTablet ? 0 : 0,
-          },
-        ]}
+        style={[styles.serviceCard, { width: serviceCardWidth }]}
       >
         {service.image ? (
           <Image source={{ uri: service.image }} style={styles.serviceImage} />
@@ -302,15 +165,12 @@ export default function AgendamentoPage({ navigation }) {
           <Text style={styles.serviceTitle} numberOfLines={2}>
             {service.name}
           </Text>
-
           <Text style={styles.servicePrice}>{formatPrice(service.price)}</Text>
-
           {!!barberNames && (
             <Text style={styles.availableBarbersText} numberOfLines={2}>
               Barbeiros: {barberNames}
             </Text>
           )}
-
           <TouchableOpacity
             style={styles.scheduleButton}
             activeOpacity={0.85}
@@ -339,24 +199,19 @@ export default function AgendamentoPage({ navigation }) {
         barStyle="light-content"
         backgroundColor={pageData.shop.primaryColor || "#1E40AF"}
       />
-
       <ScrollView
-      
-        contentContainerStyle={{paddingBottom: 30 }}
+        contentContainerStyle={{ paddingBottom: 30 }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
-        showsVerticalScrollIndicator={true}
-        alwaysBounceVertical={true} 
       >
-        <View
-          style={[
-            styles.header,
-            { backgroundColor: pageData.shop.primaryColor || "#1E40AF" },
-          ]}
-        >
+        <View style={[styles.header, { backgroundColor: pageData.shop.primaryColor || "#1E40AF" }]}>
           <View style={styles.headerRow}>
-            {renderHeaderLogo()}
+            {pageData.shop.logoUrl ? (
+              <Image source={{ uri: pageData.shop.logoUrl }} style={styles.headerLogoImage} />
+            ) : (
+              <View style={styles.headerLogoFallback} />
+            )}
             <Text style={styles.headerTitle} numberOfLines={2}>
               {pageData.shop.name}
             </Text>
@@ -365,34 +220,27 @@ export default function AgendamentoPage({ navigation }) {
 
         <View style={styles.content}>
           <Text style={styles.sectionTitle}>Próximos Agendamentos</Text>
-
-          <View style={styles.cardAgendamentoContain}>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 10 }}
-            >
-              {pageData.upcomingAppointments.length > 0 ? (
-                pageData.upcomingAppointments.map((appointment) => (
-                  <CardAgendamento
-                    key={appointment.id}
-                    appointment={appointment}
-                    onViewDetails={() => handleViewDetails(appointment)}
-                  />
-                ))
-              ) : (
-                <Text style={{ color: "#6B7280", textAlign: "center", marginTop: 20 }}>
-                  Nenhum agendamento encontrado.
-                </Text>
-              )}
-            </ScrollView>
-          </View>
-
+          <FlatList
+            data={pageData.upcomingAppointments}
+            keyExtractor={(item) => item.id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 10 }}
+            renderItem={({ item }) => (
+              <CardAgendamento
+                appointment={item}
+                onViewDetails={() => handleViewDetails(item)}
+              />
+            )}
+            ListEmptyComponent={
+              <Text style={{ color: "#6B7280", textAlign: "center", marginTop: 20 }}>
+                Nenhum agendamento encontrado.
+              </Text>
+            }
+          />
 
           <View style={styles.sectionDivider} />
-
           <Text style={styles.sectionTitle}>Serviços Populares</Text>
-
           <View style={styles.servicesGrid}>
             {pageData.popularServices.map(renderServiceCard)}
           </View>
@@ -401,7 +249,6 @@ export default function AgendamentoPage({ navigation }) {
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
