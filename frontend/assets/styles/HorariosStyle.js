@@ -1,7 +1,4 @@
-import { StyleSheet, Dimensions } from "react-native";
-
-const SCREEN_WIDTH = Dimensions.get("window").width;
-const CALENDAR_ITEM_SIZE = (SCREEN_WIDTH - 80) / 7;
+import { StyleSheet } from "react-native";
 
 const HorariosStyle = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
@@ -74,16 +71,14 @@ const HorariosStyle = StyleSheet.create({
     fontWeight: "600",
     fontSize: 14,
     textAlign: "center",
-    width: CALENDAR_ITEM_SIZE,
+    width: "14%",
   },
 
-  daysGrid: { flexDirection: 'row',
-  flexWrap: 'wrap',
-  justifyContent: 'space-between', },
-  emptyDay: { width: CALENDAR_ITEM_SIZE, height: CALENDAR_ITEM_SIZE },
+  daysGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start' },
+  emptyDay: { width: "14%", aspectRatio: 1 },
   dayBox: {
-    width: CALENDAR_ITEM_SIZE,
-    height: CALENDAR_ITEM_SIZE,
+    width: "14%",
+    aspectRatio: 1,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 8,
@@ -94,9 +89,27 @@ const HorariosStyle = StyleSheet.create({
   },
   daySelected: { backgroundColor: "#1E3A8A", borderColor: "#1E3A8A" },
   dayUnavailable: { backgroundColor: "#FEE2E2", borderColor: "#FCA5A5" },
+  dayPast: { backgroundColor: "#F3F4F6", borderColor: "#D1D5DB" },
+  barberOff: { backgroundColor: "#FFFFFF", borderColor: "#EF4444", borderWidth: 2 },
+  dayPastCrossed: {
+    position: "absolute",
+    width: "80%",
+    height: 1.5,
+    backgroundColor: "#9CA3AF",
+    transform: [{ rotate: "45deg" }],
+  },
+  barberOffCrossed: {
+    position: "absolute",
+    width: "80%",
+    height: 2,
+    backgroundColor: "#EF4444",
+    transform: [{ rotate: "-45deg" }],
+  },
   dayText: { fontWeight: "600", fontSize: 16, color: "#000" },
   dayTextSelected: { color: "#fff" },
   dayTextUnavailable: { color: "#DC2626" },
+  dayTextPast: { color: "#B5B5B5", textDecorationLine: "line-through" },
+  dayTextBarberOff: { color: "#EF4444", textDecorationLine: "line-through" },
 
   horariosContainer: { paddingHorizontal: 16, paddingVertical: 16 },
   horariosTitle: { color: "#000", fontWeight: "bold", fontSize: 16, marginBottom: 12 },

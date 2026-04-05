@@ -1,22 +1,27 @@
 import React, { useState, useMemo } from 'react';
 import { useContext } from "react";
 import { AppContext } from "../context/AppContext";
-import { View, Text, ScrollView, Pressable, Dimensions, HorariosStyleheet } from 'react-native';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   barbearia,
   barbeiros,
   gerarHorarios,
   ehDataIndisponivel,
+  ehDataAnteriorHoje,
+  ehDiaSemTrabalhoBarbeiro,
   obterHorariosDisponiveis,
   obterBarbeiro,
 } from '../assets/dados/horariosExemplo';
 import HorariosStyle from '../assets/styles/HorariosStyle';
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const CALENDAR_ITEM_SIZE = (SCREEN_WIDTH - 80) / 7;
 
-export default function HorariosPage({ navigation, barbeirosId = 1, onSelectDateTime }) {
-  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 2, 1));
+export default function HorariosPage({ navigation, route }) {
+  const barbeiroSelecionado = route.params?.barbeiroSelecionado;
+  const barbeirosId = barbeiroSelecionado?.id ?? 1;
+
+  const now = new Date();
+  const initialMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const [currentMonth, setCurrentMonth] = useState(initialMonth);
   const [selectedDate, setSelectedDate] = useState('2026-03-18');
   const [selectedTime, setSelectedTime] = useState('09:00');
   const { dataSelecionada, setDataSelecionada } = useContext(AppContext);
@@ -39,6 +44,7 @@ export default function HorariosPage({ navigation, barbeirosId = 1, onSelectDate
 
   const horariosDisponiveis = useMemo(() => {
     if (!selectedDate) return [];
+    if (ehDiaSemTrabalhoBarbeiro(barbeirosId, selectedDate)) return [];
     return obterHorariosDisponiveis(barbeirosId, selectedDate);
   }, [selectedDate, barbeirosId]);
 
@@ -61,7 +67,9 @@ export default function HorariosPage({ navigation, barbeirosId = 1, onSelectDate
 
   const selecionarData = (dia) => {
     const dataFormatada = formatarData(dia);
-    if (!ehDataIndisponivel(dataFormatada)) {
+    const ehPassada = ehDataAnteriorHoje(dataFormatada);
+    const naoTrabalhaDia = ehDiaSemTrabalhoBarbeiro(barbeirosId, dataFormatada);
+    if (!ehPassada && !naoTrabalhaDia) {
       setSelectedDate(dataFormatada);
       setSelectedTime(null);
     }
@@ -69,9 +77,6 @@ export default function HorariosPage({ navigation, barbeirosId = 1, onSelectDate
 
   const irParaProxima = () => {
     if (selectedDate && selectedTime) {
-      if (onSelectDateTime) {
-        onSelectDateTime(selectedDate, selectedTime);
-      }
       setDataSelecionada(selectedDate);
       setHoraSelecionada(selectedTime);
       console.log('Data:', selectedDate, 'Hora:', selectedTime);
@@ -143,26 +148,35 @@ export default function HorariosPage({ navigation, barbeirosId = 1, onSelectDate
                 }
                 const dataFormatada = formatarData(dia);
                 const ehIndisponivel = ehDataIndisponivel(dataFormatada);
+                const ehPassada = ehDataAnteriorHoje(dataFormatada);
+                const naoTrabalhaDia = ehDiaSemTrabalhoBarbeiro(barbeirosId, dataFormatada);
                 const ehSelecionada = selectedDate === dataFormatada;
+                const disabled = ehIndisponivel || ehPassada || naoTrabalhaDia;
 
                 return (
                   <Pressable
                     key={dia}
                     onPress={() => selecionarData(dia)}
-                    disabled={ehIndisponivel}
+                    disabled={disabled}
                     style={[
                       HorariosStyle.dayBox,
                       ehSelecionada && HorariosStyle.daySelected,
-                      ehIndisponivel && HorariosStyle.dayUnavailable,
+                      ehPassada && HorariosStyle.dayPast,
+                      naoTrabalhaDia && HorariosStyle.barberOff,
+                      !ehPassada && !naoTrabalhaDia && ehIndisponivel && HorariosStyle.dayUnavailable,
                     ]}
                   >
                     <Text style={[
                       HorariosStyle.dayText,
                       ehSelecionada && HorariosStyle.dayTextSelected,
-                      ehIndisponivel && HorariosStyle.dayTextUnavailable,
+                      ehPassada && HorariosStyle.dayTextPast,
+                      naoTrabalhaDia && HorariosStyle.dayTextBarberOff,
+                      !ehPassada && !naoTrabalhaDia && ehIndisponivel && HorariosStyle.dayTextUnavailable,
                     ]}>
                       {dia}
                     </Text>
+                    {ehPassada && <View style={HorariosStyle.dayPastCrossed} />}
+                    {naoTrabalhaDia && <View style={HorariosStyle.barberOffCrossed} />}
                   </Pressable>
                 );
               })}
