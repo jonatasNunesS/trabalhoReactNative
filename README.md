@@ -17,3 +17,5 @@ expo install react-native-safe-area-context
 npm install express mysql2
 npm install nodemon --save-dev
 
+
+huvyivyvvgvigvhvhvhiigv
