@@ -87,13 +87,13 @@ export default function AgendamentoPage({ navigation }) {
   };
 
   const handleViewDetails = (appointment) => {
-    navigation.navigate("AppointmentDetails", { appointmentId: appointment.id });
+    console.log("Ver detalhes do agendamento:", appointment);
   };
 
   const handleScheduleService = (service) => {
     console.log("Serviço selecionado para agendamento:", service);
     setServicoSelecionado(service);
-    navigation.navigate("Horarios");
+    navigation.navigate("ProfissionalSelecao");
   };
 
   const renderServiceCard = (service) => {

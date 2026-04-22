@@ -1,14 +1,5 @@
-import React, { useState } from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import { Text } from "react-native";
-
-/* Pages */
-import AgendamentoPage from "./AgendamentoPage";
-import HorariosPage from "./HorariosPage";
-import { View } from "react-native-web";
-
-const Stack = createStackNavigator();
+import React from "react";
+import { Text, View } from "react-native";
 
 export default function HomePage() {
   // estados principais do fluxo

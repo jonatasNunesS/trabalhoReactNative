@@ -4,13 +4,22 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { StyleSheet } from "react-native";
 import { AppProvider } from "./context/AppContext";
-import { useFonts,Poppins_400Regular,Poppins_600SemiBold, } from "@expo-google-fonts/poppins";
+import {
+  useFonts,
+  Poppins_400Regular,
+  Poppins_600SemiBold,
+} from "@expo-google-fonts/poppins";
 
 /* Pages */
 import HomePage from "./pages/HomePage";
 import PerfilPage from "./pages/perfilPage";
+<<<<<<< HEAD
 import ConfiguracoesPage from "./pages/configPage";
+=======
+import ConfiguracoesPage from "./pages/ConfigPage";
+>>>>>>> bfa9361256feb7f5d6f22778c763b31320327576
 import AgendamentoPage from "./pages/AgendamentoPage";
+import ProfissionalSelecaoPage from "./pages/ProfissionalSelecaoPage";
 import HorariosPage from "./pages/HorariosPage";
 
 const Tab = createBottomTabNavigator();
@@ -20,15 +29,27 @@ function AgendamentoStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Agendamento" component={AgendamentoPage} />
+<<<<<<< HEAD
       
       <Stack.Screen name="Horarios" component={HorariosPage} />
       {/* você pode adicionar ConfirmacaoPage aqui */}
+=======
+      <Stack.Screen
+        name="ProfissionalSelecao"
+        component={ProfissionalSelecaoPage}
+        options={{ presentation: "modal" }}
+      />
+      <Stack.Screen
+        name="Horarios"
+        component={HorariosPage}
+        options={{ presentation: "modal" }}
+      />
+>>>>>>> bfa9361256feb7f5d6f22778c763b31320327576
     </Stack.Navigator>
   );
 }
 
 export default function App() {
-
   /* Fontes */
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -39,7 +60,7 @@ export default function App() {
   }
   return (
     <SafeAreaProvider>
-      <SafeAreaView  style={{ flex: 1, backgroundColor: "#fff" }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
         <AppProvider>
           <NavigationContainer>
             <Tab.Navigator
