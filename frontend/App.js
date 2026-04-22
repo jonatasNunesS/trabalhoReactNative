@@ -13,11 +13,15 @@ import {
 /* Pages */
 import HomePage from "./pages/HomePage";
 import PerfilPage from "./pages/perfilPage";
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 import ConfiguracoesPage from "./pages/configPage";
 =======
 import ConfiguracoesPage from "./pages/ConfigPage";
 >>>>>>> bfa9361256feb7f5d6f22778c763b31320327576
+=======
+import ConfiguracoesPage from "./pages/configPage";
+>>>>>>> Stashed changes
 import AgendamentoPage from "./pages/AgendamentoPage";
 import ProfissionalSelecaoPage from "./pages/ProfissionalSelecaoPage";
 import HorariosPage from "./pages/HorariosPage";
