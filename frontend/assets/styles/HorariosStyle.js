@@ -1,7 +1,7 @@
 import { StyleSheet, Dimensions } from "react-native";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
-const CALENDAR_ITEM_SIZE = (SCREEN_WIDTH - 80) / 7;
+const CALENDAR_ITEM_SIZE = (SCREEN_WIDTH - 130) / 7;
 
 const HorariosStyle = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
@@ -52,7 +52,7 @@ const HorariosStyle = StyleSheet.create({
   barbeiroLabel: { color: "#808080", fontSize: 12 },
   barbeiroNome: { color: "#000", fontWeight: "bold", fontSize: 16, marginTop: 4 },
 
-  calendarContainer: { paddingHorizontal: 16, paddingVertical: 16 },
+  calendarContainer: { paddingHorizontal: 30, paddingVertical: 16 },
   calendarNav: {
     flexDirection: "row",
     alignItems: "center",
@@ -66,27 +66,26 @@ const HorariosStyle = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 18,
     textTransform: "capitalize",
+    textAlign: "center",
   },
 
-  weekRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 8 },
+  weekRow: { display: "grid", alignItems: "center", gridTemplateColumns: `repeat(7, 1fr)`, gap: 3, marginBottom: 8 },
   weekDay: {
     color: "#808080",
     fontWeight: "600",
     fontSize: 14,
-    textAlign: "center",
     width: CALENDAR_ITEM_SIZE,
+    textAlign: "center",
   },
 
-  daysGrid: { flexDirection: 'row',
-  flexWrap: 'wrap',
-  justifyContent: 'space-between', },
+  daysGrid: { display: "grid", gridTemplateColumns: `repeat(7, 1fr)`, gap: 4 },
   emptyDay: { width: CALENDAR_ITEM_SIZE, height: CALENDAR_ITEM_SIZE },
   dayBox: {
     width: CALENDAR_ITEM_SIZE,
     height: CALENDAR_ITEM_SIZE,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 2,
     borderRadius: 8,
     borderWidth: 1,
     backgroundColor: "#fff",

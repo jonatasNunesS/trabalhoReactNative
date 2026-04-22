@@ -8,8 +8,8 @@ import { useFonts,Poppins_400Regular,Poppins_600SemiBold, } from "@expo-google-f
 
 /* Pages */
 import HomePage from "./pages/HomePage";
-import PerfilPage from "./pages/PerfilPage";
-import ConfiguracoesPage from "./pages/ConfigPage";
+import PerfilPage from "./pages/perfilPage";
+import ConfiguracoesPage from "./pages/configPage";
 import AgendamentoPage from "./pages/AgendamentoPage";
 import HorariosPage from "./pages/HorariosPage";
 
@@ -20,6 +20,7 @@ function AgendamentoStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Agendamento" component={AgendamentoPage} />
+      
       <Stack.Screen name="Horarios" component={HorariosPage} />
       {/* você pode adicionar ConfirmacaoPage aqui */}
     </Stack.Navigator>
