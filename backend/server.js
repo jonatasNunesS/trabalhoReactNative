@@ -1,46 +1,32 @@
-// Importa o módulo HTTP nativo do Node.js
-const http = require('http');
-const db = require('./database/db')
+const express = require('express');
+const app = express();
+const cors = require('cors');
 
+// Permite receber e enviar JSON
+app.use(cors());
+app.use(express.json());
+
+// Rotas
+const clientesRoutes = require('./routes/clientesRoutes');
 const barbeirosRoutes = require('./routes/barbeirosRoutes');
+const procedimentosRoutes = require('./routes/procedimentosRoutes');
+const agendamentosRoutes = require('./routes/agendamentosRoutes');
+const horariosRoutes = require('./routes/horariosBarbeiroRoutes');
 
-// Define a porta do servidor (usa variável de ambiente ou padrão 3000)
+app.use('/horarios', horariosRoutes);
+app.use('/agendamentos', agendamentosRoutes);
+app.use('/procedimentos', procedimentosRoutes);
+app.use('/clientes', clientesRoutes);
+app.use('/barbeiros', barbeirosRoutes);
+
+// Rota inicial
+app.get('/', (req, res) => {
+  res.json({ message: 'Servidor Node.js com Express ativo e usando JSON!' });
+});
+
+// Porta
 const PORT = process.env.PORT || 3000;
 
-// Função para lidar com as requisições
-const requestHandler = (req, res) => {
-  try {
-    // Define o tipo de conteúdo da resposta
-    res.setHeader('Content-Type', 'application/json');
-
-    // Roteamento básico
-    if (req.url === '/' && req.method === 'GET') {
-      res.writeHead(200);
-      res.end(JSON.stringify({ message: 'Servidor Node.js ativo!' }));
-    } 
-    else if (req.url === '/sobre' && req.method === 'GET') {
-      res.writeHead(200);
-      res.end(JSON.stringify({ autor: 'Seu Nome', versao: '1.0.0' }));
-    } 
-    else {
-      res.writeHead(404);
-      res.end(JSON.stringify({ error: 'Rota não encontrada' }));
-    }
-  } catch (error) {
-    // Tratamento de erros internos
-    res.writeHead(500);
-    res.end(JSON.stringify({ error: 'Erro interno no servidor' }));
-    console.error('Erro no servidor:', error);
-  }
-};
-
-// Cria o servidor
-const server = http.createServer(requestHandler);
-
-server.use("/api", barbeirosRoutes);
-
-
-// Inicia o servidor
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
