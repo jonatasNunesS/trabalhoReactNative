@@ -13,15 +13,7 @@ import {
 /* Pages */
 import HomePage from "./pages/HomePage";
 import PerfilPage from "./pages/perfilPage";
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-import ConfiguracoesPage from "./pages/configPage";
-=======
 import ConfiguracoesPage from "./pages/ConfigPage";
->>>>>>> bfa9361256feb7f5d6f22778c763b31320327576
-=======
-import ConfiguracoesPage from "./pages/configPage";
->>>>>>> Stashed changes
 import AgendamentoPage from "./pages/AgendamentoPage";
 import ProfissionalSelecaoPage from "./pages/ProfissionalSelecaoPage";
 import HorariosPage from "./pages/HorariosPage";
@@ -33,11 +25,6 @@ function AgendamentoStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Agendamento" component={AgendamentoPage} />
-<<<<<<< HEAD
-      
-      <Stack.Screen name="Horarios" component={HorariosPage} />
-      {/* você pode adicionar ConfirmacaoPage aqui */}
-=======
       <Stack.Screen
         name="ProfissionalSelecao"
         component={ProfissionalSelecaoPage}
@@ -48,7 +35,6 @@ function AgendamentoStack() {
         component={HorariosPage}
         options={{ presentation: "modal" }}
       />
->>>>>>> bfa9361256feb7f5d6f22778c763b31320327576
     </Stack.Navigator>
   );
 }
