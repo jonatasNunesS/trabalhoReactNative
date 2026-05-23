@@ -1,38 +1,65 @@
-export const colors = {
-  primary: '#163B9D',
-  primaryDark: '#0C2B7B',
+export const palette = {
+  primary: '#1E40AF',
+  primaryDark: '#1E3A8A',
   accent: '#22B8B0',
-  background: '#F3F4F6',
-  surface: '#FFFFFF',
-  surfaceAlt: '#EFF3FB',
-  text: '#111827',
-  textMuted: '#6B7280',
-  border: '#E5E7EB',
   white: '#FFFFFF',
+  black: '#000000',
 };
 
-export const spacing = {
-  xs: 6,
-  sm: 10,
-  md: 16,
-  lg: 20,
-  xl: 24,
-  xxl: 32,
+export const lightTheme = {
+  isDark: false,
+  statusBar: 'dark-content',
+  background: '#F8FAFC',
+  backgroundSecondary: '#F1F5F9',
+  surface: '#FFFFFF',
+  surfaceElevated: '#FFFFFF',
+  surfaceMuted: '#EFF6FF',
+  text: '#0F172A',
+  textSecondary: '#334155',
+  textMuted: '#64748B',
+  textSoft: '#94A3B8',
+  primary: palette.primary,
+  primaryDark: palette.primaryDark,
+  accent: palette.accent,
+  accentSurface: '#E6FFFB',
+  successSurface: '#DDF5F3',
+  successText: '#0F766E',
+  border: '#E2E8F0',
+  borderStrong: '#CBD5E1',
+  divider: '#D1D5DB',
+  tabBarBackground: '#FFFFFF',
+  tabBarBorder: '#E2E8F0',
+  shadow: '#000000',
+  overlay: 'rgba(15, 23, 42, 0.08)',
 };
 
-export const radius = {
-  sm: 10,
-  md: 16,
-  lg: 22,
-  pill: 999,
+export const darkTheme = {
+  isDark: true,
+  statusBar: 'light-content',
+  background: '#0B1220',
+  backgroundSecondary: '#111827',
+  surface: '#111827',
+  surfaceElevated: '#1F2937',
+  surfaceMuted: '#172554',
+  text: '#F8FAFC',
+  textSecondary: '#E5E7EB',
+  textMuted: '#94A3B8',
+  textSoft: '#64748B',
+  primary: palette.primary,
+  primaryDark: palette.primaryDark,
+  accent: palette.accent,
+  accentSurface: 'rgba(34, 184, 176, 0.16)',
+  successSurface: 'rgba(34, 184, 176, 0.18)',
+  successText: '#5EEAD4',
+  border: '#334155',
+  borderStrong: '#475569',
+  divider: '#243244',
+  tabBarBackground: '#111827',
+  tabBarBorder: '#243244',
+  shadow: '#000000',
+  overlay: 'rgba(15, 23, 42, 0.3)',
 };
 
-export const shadows = {
-  card: {
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
-  },
-};
+export function getTheme(darkMode) {
+  return darkMode ? darkTheme : lightTheme;
+}

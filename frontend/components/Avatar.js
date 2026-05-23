@@ -1,13 +1,20 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { getInitials } from '../utils/formatters';
+import { useAppTheme } from '../context/AppContext';
 
 export default function Avatar({ size = 64, name = '', photoUrl = '', style }) {
+  const { theme } = useAppTheme();
+
   if (photoUrl) {
     return (
       <Image
         source={{ uri: photoUrl }}
-        style={[styles.image, { width: size, height: size, borderRadius: size / 2 }, style]}
+        style={[
+          styles.image,
+          { width: size, height: size, borderRadius: size / 2, backgroundColor: theme.border },
+          style,
+        ]}
       />
     );
   }
@@ -16,11 +23,21 @@ export default function Avatar({ size = 64, name = '', photoUrl = '', style }) {
     <View
       style={[
         styles.fallback,
-        { width: size, height: size, borderRadius: size / 2 },
+        {
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+          backgroundColor: theme.isDark ? theme.surfaceElevated : '#D1D5DB',
+        },
         style,
       ]}
     >
-      <Text style={[styles.fallbackText, { fontSize: Math.max(16, size * 0.28) }]}>
+      <Text
+        style={[
+          styles.fallbackText,
+          { fontSize: Math.max(16, size * 0.28), color: theme.textSecondary },
+        ]}
+      >
         {getInitials(name)}
       </Text>
     </View>
@@ -32,12 +49,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#E5E7EB',
   },
   fallback: {
-    backgroundColor: '#D1D5DB',
     alignItems: 'center',
     justifyContent: 'center',
   },
   fallbackText: {
-    color: '#374151',
     fontWeight: '800',
   },
 });

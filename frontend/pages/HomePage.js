@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   RefreshControl,
@@ -8,26 +8,29 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Avatar from "../components/Avatar";
-import BrandFooter from "../components/BrandFooter";
-import { developerBrand } from "../data/exampleData";
-import { getSchedulingPageData } from "../services/api";
-import { formatDateTime, formatPrice, getInitials, isFilledString } from "../utils/formatters";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Avatar from '../components/Avatar';
+import BrandFooter from '../components/BrandFooter';
+import { developerBrand } from '../data/exampleData';
+import { getSchedulingPageData } from '../services/api';
+import { formatDateTime, formatPrice, getInitials, isFilledString } from '../utils/formatters';
+import { useAppTheme } from '../context/AppContext';
 
 const INITIAL_STATE = {
   shop: {
-    name: "Barbearia Premium",
-    logoUrl: "",
-    primaryColor: "#1E40AF",
-    accentColor: "#22B8B0",
+    name: 'Barbearia Premium',
+    logoUrl: '',
+    primaryColor: '#1E40AF',
+    accentColor: '#22B8B0',
   },
   upcomingAppointments: [],
   popularServices: [],
 };
 
 export default function HomePage({ navigation }) {
+  const { theme } = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [pageData, setPageData] = useState(INITIAL_STATE);
@@ -38,7 +41,7 @@ export default function HomePage({ navigation }) {
       setPageData({
         shop: {
           name: isFilledString(data?.shop?.name) ? data.shop.name : INITIAL_STATE.shop.name,
-          logoUrl: isFilledString(data?.shop?.logoUrl) ? data.shop.logoUrl : "",
+          logoUrl: isFilledString(data?.shop?.logoUrl) ? data.shop.logoUrl : '',
           primaryColor: isFilledString(data?.shop?.primaryColor)
             ? data.shop.primaryColor
             : INITIAL_STATE.shop.primaryColor,
@@ -49,9 +52,7 @@ export default function HomePage({ navigation }) {
         upcomingAppointments: Array.isArray(data?.upcomingAppointments)
           ? data.upcomingAppointments
           : [],
-        popularServices: Array.isArray(data?.popularServices)
-          ? data.popularServices
-          : [],
+        popularServices: Array.isArray(data?.popularServices) ? data.popularServices : [],
       });
     } finally {
       setLoading(false);
@@ -80,17 +81,17 @@ export default function HomePage({ navigation }) {
     );
 
     return [
-      { label: "Serviços", value: pageData.popularServices.length },
-      { label: "Profissionais", value: professionals.size },
-      { label: "Agenda", value: nextAppointment ? "1" : "0" },
+      { label: 'Serviços', value: pageData.popularServices.length },
+      { label: 'Profissionais', value: professionals.size },
+      { label: 'Agenda', value: nextAppointment ? '1' : '0' },
     ];
   }, [nextAppointment, pageData.popularServices]);
 
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <StatusBar barStyle="light-content" backgroundColor="#1E40AF" />
-        <ActivityIndicator size="large" color="#1E40AF" />
+        <StatusBar barStyle={theme.statusBar} backgroundColor={theme.background} />
+        <ActivityIndicator size="large" color={theme.primary} />
         <Text style={styles.loadingText}>Preparando sua agenda...</Text>
       </SafeAreaView>
     );
@@ -98,22 +99,22 @@ export default function HomePage({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar
-        barStyle="light-content"
-        backgroundColor={pageData.shop.primaryColor || "#1E40AF"}
-      />
+      <StatusBar barStyle="light-content" backgroundColor={pageData.shop.primaryColor || theme.primary} />
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={theme.primary}
+            colors={[theme.primary]}
+            progressBackgroundColor={theme.surface}
+          />
+        }
       >
-        <View
-          style={[
-            styles.hero,
-            { backgroundColor: pageData.shop.primaryColor || "#1E40AF" },
-          ]}
-        >
+        <View style={[styles.hero, { backgroundColor: pageData.shop.primaryColor || theme.primary }]}>
           <View style={styles.heroBrandRow}>
             {pageData.shop.logoUrl ? (
               <Avatar size={58} name={pageData.shop.name} photoUrl={pageData.shop.logoUrl} />
@@ -137,7 +138,7 @@ export default function HomePage({ navigation }) {
           <TouchableOpacity
             style={styles.heroButton}
             activeOpacity={0.88}
-            onPress={() => navigation.navigate("Agendar")}
+            onPress={() => navigation.navigate('Agendar')}
           >
             <Text style={styles.heroButtonText}>Novo agendamento</Text>
           </TouchableOpacity>
@@ -157,24 +158,15 @@ export default function HomePage({ navigation }) {
           <Text style={styles.sectionTitle}>Próximo compromisso</Text>
 
           {nextAppointment ? (
-            <View
-              style={[
-                styles.nextAppointmentCard,
-                { borderColor: pageData.shop.accentColor || "#22B8B0" },
-              ]}
-            >
+            <View style={[styles.nextAppointmentCard, { borderColor: pageData.shop.accentColor || theme.accent }]}>
               <View style={styles.nextAppointmentHeader}>
-                <Avatar
-                  size={58}
-                  name={nextAppointment.barberName}
-                  photoUrl={nextAppointment.barberAvatar}
-                />
+                <Avatar size={58} name={nextAppointment.barberName} photoUrl={nextAppointment.barberAvatar} />
                 <View style={styles.nextAppointmentInfo}>
                   <Text style={styles.nextAppointmentTitle}>{nextAppointment.serviceName}</Text>
                   <Text style={styles.nextAppointmentSubtitle}>{nextAppointment.barberName}</Text>
                 </View>
                 <View style={styles.statusBadge}>
-                  <Text style={styles.statusBadgeText}>{nextAppointment.status || "Confirmado"}</Text>
+                  <Text style={styles.statusBadgeText}>{nextAppointment.status || 'Confirmado'}</Text>
                 </View>
               </View>
               <Text style={styles.nextAppointmentDate}>{formatDateTime(nextAppointment.dateTime)}</Text>
@@ -196,7 +188,7 @@ export default function HomePage({ navigation }) {
                 key={service.id}
                 style={styles.highlightCard}
                 activeOpacity={0.86}
-                onPress={() => navigation.navigate("Agendar")}
+                onPress={() => navigation.navigate('Agendar')}
               >
                 <View style={styles.highlightBadge}>
                   <Text style={styles.highlightBadgeText}>{getInitials(service.name)}</Text>
@@ -217,231 +209,246 @@ export default function HomePage({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F8FAFC",
-  },
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: "#F8FAFC",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 24,
-  },
-  loadingText: {
-    marginTop: 14,
-    fontSize: 16,
-    color: "#475569",
-    fontWeight: "600",
-  },
-  scrollContent: {
-    paddingBottom: 40,
-  },
-  hero: {
-    paddingHorizontal: 20,
-    paddingTop: 22,
-    paddingBottom: 22,
-    borderBottomLeftRadius: 28,
-    borderBottomRightRadius: 28,
-  },
-  heroBrandRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 18,
-  },
-  logoFallback: {
-    width: 58,
-    height: 58,
-    borderRadius: 18,
-    borderWidth: 2,
-    borderColor: "rgba(255,255,255,0.4)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 14,
-  },
-  logoFallbackText: {
-    color: "#FFFFFF",
-    fontWeight: "800",
-    fontSize: 18,
-  },
-  heroTextWrap: {
-    flex: 1,
-  },
-  heroEyebrow: {
-    color: "rgba(255,255,255,0.8)",
-    fontSize: 11,
-    fontWeight: "700",
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
-    marginBottom: 4,
-  },
-  heroTitle: {
-    color: "#FFFFFF",
-    fontSize: 28,
-    fontWeight: "800",
-  },
-  heroSubtitle: {
-    color: "rgba(255,255,255,0.88)",
-    fontSize: 14,
-    lineHeight: 20,
-    marginTop: 4,
-  },
-  heroButton: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    paddingVertical: 16,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  heroButtonText: {
-    color: "#1E40AF",
-    fontSize: 16,
-    fontWeight: "800",
-  },
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-  statsRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 22,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 16,
-    shadowColor: "#000000",
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 2,
-  },
-  statValue: {
-    color: "#1E40AF",
-    fontSize: 24,
-    fontWeight: "800",
-    marginBottom: 4,
-  },
-  statLabel: {
-    color: "#64748B",
-    fontSize: 13,
-    fontWeight: "600",
-  },
-  eyebrow: {
-    color: "#64748B",
-    fontSize: 12,
-    fontWeight: "700",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-    marginBottom: 6,
-  },
-  sectionTitle: {
-    color: "#0F172A",
-    fontSize: 22,
-    fontWeight: "800",
-    marginBottom: 14,
-  },
-  nextAppointmentCard: {
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1.5,
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 22,
-  },
-  nextAppointmentHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  nextAppointmentInfo: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  nextAppointmentTitle: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: "#0F172A",
-  },
-  nextAppointmentSubtitle: {
-    fontSize: 14,
-    color: "#64748B",
-    marginTop: 4,
-  },
-  statusBadge: {
-    backgroundColor: "#D1FAE5",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
-  },
-  statusBadgeText: {
-    color: "#0F766E",
-    fontSize: 12,
-    fontWeight: "800",
-  },
-  nextAppointmentDate: {
-    marginTop: 16,
-    fontSize: 16,
-    fontWeight: "800",
-    color: "#1E40AF",
-  },
-  emptyCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 18,
-    marginBottom: 22,
-  },
-  emptyTitle: {
-    color: "#0F172A",
-    fontSize: 18,
-    fontWeight: "800",
-  },
-  emptyText: {
-    color: "#64748B",
-    fontSize: 14,
-    lineHeight: 20,
-    marginTop: 6,
-  },
-  highlightList: {
-    gap: 12,
-  },
-  highlightCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 16,
-  },
-  highlightBadge: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#E0E7FF",
-    marginRight: 12,
-  },
-  highlightBadgeText: {
-    color: "#1E40AF",
-    fontWeight: "800",
-  },
-  highlightInfo: {
-    flex: 1,
-  },
-  highlightTitle: {
-    color: "#0F172A",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  highlightMeta: {
-    color: "#64748B",
-    fontSize: 14,
-    marginTop: 4,
-  },
-  highlightAction: {
-    color: "#1E40AF",
-    fontSize: 15,
-    fontWeight: "800",
-  },
-});
+function createStyles(theme) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.background,
+    },
+    loadingContainer: {
+      flex: 1,
+      backgroundColor: theme.background,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: 24,
+    },
+    loadingText: {
+      marginTop: 14,
+      fontSize: 16,
+      color: theme.textSecondary,
+      fontWeight: '600',
+    },
+    scrollContent: {
+      paddingBottom: 40,
+    },
+    hero: {
+      paddingHorizontal: 20,
+      paddingTop: 22,
+      paddingBottom: 22,
+      borderBottomLeftRadius: 28,
+      borderBottomRightRadius: 28,
+    },
+    heroBrandRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 18,
+    },
+    logoFallback: {
+      width: 58,
+      height: 58,
+      borderRadius: 18,
+      borderWidth: 2,
+      borderColor: 'rgba(255,255,255,0.4)',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: 14,
+    },
+    logoFallbackText: {
+      color: '#FFFFFF',
+      fontWeight: '800',
+      fontSize: 18,
+    },
+    heroTextWrap: {
+      flex: 1,
+    },
+    heroEyebrow: {
+      color: 'rgba(255,255,255,0.8)',
+      fontSize: 11,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+      marginBottom: 4,
+    },
+    heroTitle: {
+      color: '#FFFFFF',
+      fontSize: 28,
+      fontWeight: '800',
+    },
+    heroSubtitle: {
+      color: 'rgba(255,255,255,0.88)',
+      fontSize: 14,
+      lineHeight: 20,
+      marginTop: 4,
+    },
+    heroButton: {
+      backgroundColor: theme.surface,
+      borderRadius: 18,
+      paddingVertical: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    heroButtonText: {
+      color: theme.primary,
+      fontSize: 16,
+      fontWeight: '800',
+    },
+    content: {
+      paddingHorizontal: 20,
+      paddingTop: 20,
+    },
+    statsRow: {
+      flexDirection: 'row',
+      gap: 12,
+      marginBottom: 22,
+    },
+    statCard: {
+      flex: 1,
+      backgroundColor: theme.surface,
+      borderRadius: 18,
+      padding: 16,
+      shadowColor: theme.shadow,
+      shadowOpacity: theme.isDark ? 0.16 : 0.05,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 3 },
+      elevation: 2,
+      borderWidth: theme.isDark ? 1 : 0,
+      borderColor: theme.border,
+    },
+    statValue: {
+      color: theme.primary,
+      fontSize: 24,
+      fontWeight: '800',
+      marginBottom: 4,
+    },
+    statLabel: {
+      color: theme.textMuted,
+      fontSize: 13,
+      fontWeight: '600',
+    },
+    eyebrow: {
+      color: theme.textMuted,
+      fontSize: 12,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+      marginBottom: 6,
+    },
+    sectionTitle: {
+      color: theme.text,
+      fontSize: 22,
+      fontWeight: '800',
+      marginBottom: 14,
+    },
+    nextAppointmentCard: {
+      backgroundColor: theme.surface,
+      borderWidth: 1.5,
+      borderRadius: 20,
+      padding: 16,
+      marginBottom: 22,
+    },
+    nextAppointmentHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    nextAppointmentInfo: {
+      flex: 1,
+      marginLeft: 12,
+    },
+    nextAppointmentTitle: {
+      color: theme.text,
+      fontSize: 22,
+      fontWeight: '800',
+    },
+    nextAppointmentSubtitle: {
+      color: theme.textMuted,
+      fontSize: 16,
+      marginTop: 4,
+    },
+    statusBadge: {
+      backgroundColor: theme.successSurface,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 999,
+    },
+    statusBadgeText: {
+      color: theme.successText,
+      fontWeight: '700',
+      fontSize: 12,
+    },
+    nextAppointmentDate: {
+      marginTop: 16,
+      color: theme.primary,
+      fontSize: 18,
+      fontWeight: '800',
+    },
+    emptyCard: {
+      backgroundColor: theme.surface,
+      borderRadius: 20,
+      padding: 18,
+      marginBottom: 22,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    emptyTitle: {
+      color: theme.text,
+      fontSize: 18,
+      fontWeight: '800',
+      marginBottom: 8,
+    },
+    emptyText: {
+      color: theme.textMuted,
+      lineHeight: 22,
+    },
+    highlightList: {
+      gap: 12,
+    },
+    highlightCard: {
+      backgroundColor: theme.surface,
+      borderRadius: 18,
+      padding: 16,
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 8,
+      shadowColor: theme.shadow,
+      shadowOpacity: theme.isDark ? 0.12 : 0.04,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 2 },
+      elevation: 2,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    highlightBadge: {
+      width: 48,
+      height: 48,
+      borderRadius: 16,
+      backgroundColor: theme.isDark ? theme.surfaceMuted : '#EEF2FF',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: 14,
+    },
+    highlightBadgeText: {
+      color: theme.primary,
+      fontWeight: '800',
+      fontSize: 16,
+    },
+    highlightInfo: {
+      flex: 1,
+    },
+    highlightTitle: {
+      color: theme.text,
+      fontSize: 20,
+      fontWeight: '800',
+      marginBottom: 3,
+    },
+    highlightMeta: {
+      color: theme.textMuted,
+      fontSize: 14,
+    },
+    highlightAction: {
+      color: theme.primary,
+      fontSize: 16,
+      fontWeight: '800',
+      marginLeft: 12,
+    },
+  });
+}

@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useContext } from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
+import { View, Text, ScrollView, Pressable, StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppContext } from "../context/AppContext";
 import Avatar from "../components/Avatar";
@@ -12,7 +12,8 @@ import {
   ehDiaSemTrabalhoBarbeiro,
   obterHorariosDisponiveis,
 } from "../assets/dados/horariosExemplo";
-import HorariosStyle from "../assets/styles/HorariosStyle";
+import getHorariosStyles from "../assets/styles/HorariosStyle";
+import { useAppTheme } from "../context/AppContext";
 import { formatPrice } from "../utils/utilidades";
 
 function formatarDataVisual(dateString) {
@@ -26,6 +27,8 @@ function formatarDataVisual(dateString) {
 }
 
 export default function HorariosPage({ navigation, route }) {
+  const { theme } = useAppTheme();
+  const HorariosStyle = useMemo(() => getHorariosStyles(theme), [theme]);
   const serviceFromRoute = route.params?.service || null;
   const professionalFromRoute = route.params?.professional || null;
   const flowMode = route.params?.flowMode || "service-first";
@@ -268,6 +271,7 @@ export default function HorariosPage({ navigation, route }) {
 
   return (
     <SafeAreaView style={HorariosStyle.container}>
+      <StatusBar barStyle="light-content" backgroundColor={theme.primaryDark} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={HorariosStyle.page}>
           <View style={HorariosStyle.header}>

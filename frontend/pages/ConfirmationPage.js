@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Alert,
   SafeAreaView,
@@ -10,8 +10,11 @@ import {
 } from 'react-native';
 import Avatar from '../components/Avatar';
 import { formatPrice } from '../utils/utilidades';
+import { useAppTheme } from '../context/AppContext';
 
 export default function ConfirmationPage({ navigation, route }) {
+  const { theme } = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const service = route?.params?.service || null;
   const professional = route?.params?.professional || null;
   const selectedDateLabel = route?.params?.selectedDateLabel || route?.params?.selectedDate || '';
@@ -28,11 +31,15 @@ export default function ConfirmationPage({ navigation, route }) {
   };
 
   const serviceLabel = service?.name || (flowMode === 'professional-first' ? 'Serviço a definir' : 'Serviço');
-  const valueLabel = service?.price ? formatPrice(service.price) : flowMode === 'professional-first' ? 'Valor sob consulta' : formatPrice(0);
+  const valueLabel = service?.price
+    ? formatPrice(service.price)
+    : flowMode === 'professional-first'
+    ? 'Valor sob consulta'
+    : formatPrice(0);
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1E40AF" />
+      <StatusBar barStyle="light-content" backgroundColor={theme.primary} />
 
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} activeOpacity={0.8} onPress={navigation.goBack}>
@@ -88,119 +95,121 @@ export default function ConfirmationPage({ navigation, route }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  header: {
-    backgroundColor: '#1E40AF',
-    paddingTop: 16,
-    paddingBottom: 18,
-    paddingHorizontal: 18,
-  },
-  backButton: {
-    position: 'absolute',
-    left: 18,
-    top: 12,
-    zIndex: 2,
-    width: 52,
-    height: 52,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  backButtonText: {
-    fontSize: 52,
-    lineHeight: 52,
-    color: '#FFFFFF',
-    fontWeight: '400',
-  },
-  headerTitle: {
-    textAlign: 'center',
-    color: '#FFFFFF',
-    fontSize: 25,
-    fontWeight: '800',
-    paddingHorizontal: 46,
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-    justifyContent: 'space-between',
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 18,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  cardTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#111827',
-    marginBottom: 18,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 14,
-  },
-  infoLabel: {
-    color: '#64748B',
-    fontWeight: '700',
-  },
-  infoValue: {
-    color: '#111827',
-    fontWeight: '800',
-    flex: 1,
-    textAlign: 'right',
-    marginLeft: 12,
-  },
-  professionalRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 10,
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  professionalInfo: {
-    marginLeft: 14,
-    flex: 1,
-  },
-  professionalName: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#111827',
-  },
-  professionalSpecialty: {
-    marginTop: 4,
-    fontSize: 14,
-    color: '#64748B',
-  },
-  professionalServices: {
-    marginTop: 6,
-    fontSize: 13,
-    color: '#1E40AF',
-    fontWeight: '700',
-    lineHeight: 18,
-  },
-  confirmButton: {
-    backgroundColor: '#1E40AF',
-    borderRadius: 14,
-    paddingVertical: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  confirmButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '800',
-  },
-});
+function createStyles(theme) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.background,
+    },
+    header: {
+      backgroundColor: theme.primary,
+      paddingTop: 16,
+      paddingBottom: 18,
+      paddingHorizontal: 18,
+    },
+    backButton: {
+      position: 'absolute',
+      left: 18,
+      top: 12,
+      zIndex: 2,
+      width: 52,
+      height: 52,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    backButtonText: {
+      fontSize: 52,
+      lineHeight: 52,
+      color: '#FFFFFF',
+      fontWeight: '400',
+    },
+    headerTitle: {
+      textAlign: 'center',
+      color: '#FFFFFF',
+      fontSize: 25,
+      fontWeight: '800',
+      paddingHorizontal: 46,
+    },
+    content: {
+      flex: 1,
+      padding: 16,
+      justifyContent: 'space-between',
+    },
+    card: {
+      backgroundColor: theme.surface,
+      borderRadius: 18,
+      padding: 18,
+      shadowColor: theme.shadow,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: theme.isDark ? 0.16 : 0.05,
+      shadowRadius: 6,
+      elevation: 2,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    cardTitle: {
+      fontSize: 22,
+      fontWeight: '800',
+      color: theme.text,
+      marginBottom: 18,
+    },
+    infoRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 14,
+    },
+    infoLabel: {
+      color: theme.textMuted,
+      fontWeight: '700',
+    },
+    infoValue: {
+      color: theme.text,
+      fontWeight: '800',
+      flex: 1,
+      textAlign: 'right',
+      marginLeft: 12,
+    },
+    professionalRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginVertical: 10,
+      paddingVertical: 10,
+      borderTopWidth: 1,
+      borderBottomWidth: 1,
+      borderColor: theme.border,
+    },
+    professionalInfo: {
+      marginLeft: 14,
+      flex: 1,
+    },
+    professionalName: {
+      fontSize: 18,
+      fontWeight: '800',
+      color: theme.text,
+    },
+    professionalSpecialty: {
+      marginTop: 4,
+      fontSize: 14,
+      color: theme.textMuted,
+    },
+    professionalServices: {
+      marginTop: 6,
+      fontSize: 13,
+      color: theme.primary,
+      fontWeight: '700',
+      lineHeight: 18,
+    },
+    confirmButton: {
+      backgroundColor: theme.primary,
+      borderRadius: 14,
+      paddingVertical: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    confirmButtonText: {
+      color: '#FFFFFF',
+      fontSize: 18,
+      fontWeight: '800',
+    },
+  });
+}

@@ -1,11 +1,14 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useAppTheme } from '../context/AppContext';
 
 export default function BrandFooter({ brandName, tagline }) {
+  const { theme } = useAppTheme();
+
   return (
     <View style={styles.container}>
-      <Text style={styles.poweredText}>Tecnologia por {brandName}</Text>
-      {tagline ? <Text style={styles.tagline}>{tagline}</Text> : null}
+      <Text style={[styles.poweredText, { color: theme.textMuted }]}>Tecnologia por {brandName}</Text>
+      {tagline ? <Text style={[styles.tagline, { color: theme.textSoft }]}>{tagline}</Text> : null}
     </View>
   );
 }
@@ -19,12 +22,10 @@ const styles = StyleSheet.create({
   },
   poweredText: {
     fontSize: 12,
-    color: '#6B7280',
     fontWeight: '700',
   },
   tagline: {
     marginTop: 2,
     fontSize: 11,
-    color: '#9CA3AF',
   },
 });

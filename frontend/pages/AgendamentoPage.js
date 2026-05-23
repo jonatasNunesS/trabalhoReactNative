@@ -16,7 +16,8 @@ import CardAgendamento from "../components/cardAgendamentos";
 import { getInitials, formatPrice } from "../utils/utilidades";
 import { useContext } from "react";
 import { AppContext } from "../context/AppContext";
-import AgendamentoStyle from "../assets/styles/AgendamentoPage";
+import getAgendamentoStyles from "../assets/styles/AgendamentoPage";
+import { useAppTheme } from "../context/AppContext";
 import { EXAMPLE_DATA } from "../assets/dados/barbeiros";
 
 const API_BASE_URL = "http://SEU_IP_OU_DOMINIO:3000";
@@ -119,6 +120,8 @@ function buildPageData(apiData) {
 }
 
 export default function AgendamentoPage({ navigation }) {
+  const { theme } = useAppTheme();
+  const AgendamentoStyle = useMemo(() => getAgendamentoStyles(theme), [theme]);
   const {
     setServicoSelecionado,
     setBarbeiroSelecionado,
@@ -324,8 +327,8 @@ export default function AgendamentoPage({ navigation }) {
   if (loading) {
     return (
       <SafeAreaView style={AgendamentoStyle.loadingContainer}>
-        <StatusBar barStyle="light-content" backgroundColor="#1E40AF" />
-        <ActivityIndicator size="large" color="#1E40AF" />
+        <StatusBar barStyle={theme.statusBar} backgroundColor={theme.backgroundSecondary} />
+        <ActivityIndicator size="large" color={theme.primary} />
         <Text style={AgendamentoStyle.loadingText}>Carregando agendamentos...</Text>
       </SafeAreaView>
     );
@@ -338,9 +341,15 @@ export default function AgendamentoPage({ navigation }) {
         backgroundColor={pageData.shop.primaryColor || "#1E40AF"}
       />
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 30 }}
+        contentContainerStyle={AgendamentoStyle.scrollContent}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={theme.primary}
+            colors={[theme.primary]}
+            progressBackgroundColor={theme.surface}
+          />
         }
         showsVerticalScrollIndicator={false}
       >
@@ -380,7 +389,7 @@ export default function AgendamentoPage({ navigation }) {
               />
             )}
             ListEmptyComponent={
-              <Text style={{ color: "#6B7280", textAlign: "center", marginTop: 20 }}>
+              <Text style={{ color: theme.textMuted, textAlign: "center", marginTop: 20 }}>
                 Nenhum agendamento encontrado.
               </Text>
             }
@@ -407,7 +416,7 @@ export default function AgendamentoPage({ navigation }) {
             contentContainerStyle={AgendamentoStyle.professionalListContent}
             renderItem={renderProfessionalCard}
             ListEmptyComponent={
-              <Text style={{ color: "#6B7280", marginTop: 8 }}>
+              <Text style={{ color: theme.textMuted, marginTop: 8 }}>
                 Nenhum profissional disponível no momento.
               </Text>
             }
