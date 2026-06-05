@@ -1,8 +1,23 @@
-import React, { useState } from 'react';
-import {View,Text,TextInput,TouchableOpacity,StyleSheet,SafeAreaView,StatusBar,KeyboardAvoidingView,Platform,ScrollView,Alert,
+import React, { useMemo, useState } from 'react';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import { useAppTheme } from '../context/AppContext';
 
-export default function LoginScreen() {
+export default function LoginPage({ navigation }) {
+  const { theme } = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+
   const [identificador, setIdentificador] = useState('');
   const [senha, setSenha] = useState('');
   const [senhaVisivel, setSenhaVisivel] = useState(false);
@@ -26,12 +41,24 @@ export default function LoginScreen() {
       Alert.alert('Atenção', 'Preencha todos os campos.');
       return;
     }
-    Alert.alert('Login', `Identificador: ${identificador}`);
+    // Após login bem-sucedido, navega para a tela principal
+    navigation.replace('Main');
+  };
+
+  const handleCadastro = () => {
+    Alert.alert('Cadastro', 'Funcionalidade em breve!');
+  };
+
+  const handleEsqueceuSenha = () => {
+    Alert.alert('Recuperar senha', 'Funcionalidade em breve!');
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#0f0d0b" />
+      <StatusBar
+        barStyle={theme.isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={theme.background}
+      />
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -50,9 +77,9 @@ export default function LoginScreen() {
             <Text style={styles.brandSub}>Klayver</Text>
           </View>
 
-          <View style={styles.dividerGold} />
+          <View style={styles.divider} />
 
-          {/* Campo e-mail ou celular unificado */}
+          {/* Campo e-mail ou celular */}
           <View style={styles.fieldWrap}>
             <Text style={styles.fieldLabel}>E-MAIL OU CELULAR</Text>
             <View style={styles.inputWrap}>
@@ -61,7 +88,7 @@ export default function LoginScreen() {
                 value={identificador}
                 onChangeText={setIdentificador}
                 placeholder="seu@email.com ou (11) 99999-9999"
-                placeholderTextColor="#5a5040"
+                placeholderTextColor={theme.textSoft}
                 keyboardType={getKeyboardType()}
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -79,7 +106,7 @@ export default function LoginScreen() {
                 value={senha}
                 onChangeText={setSenha}
                 placeholder="••••••••"
-                placeholderTextColor="#5a5040"
+                placeholderTextColor={theme.textSoft}
                 secureTextEntry={!senhaVisivel}
                 autoCapitalize="none"
               />
@@ -93,146 +120,173 @@ export default function LoginScreen() {
           </View>
 
           {/* Esqueceu a senha */}
-          <TouchableOpacity
-            style={styles.forgotWrap}
-            onPress={() => Alert.alert('Recuperar senha', 'Funcionalidade em breve!')}
-          >
+          <TouchableOpacity style={styles.forgotWrap} onPress={handleEsqueceuSenha}>
             <Text style={styles.forgotText}>Esqueceu a senha?</Text>
           </TouchableOpacity>
 
           {/* Botão entrar */}
-          <TouchableOpacity style={styles.btnLogin} onPress={handleLogin} activeOpacity={0.85}>
+          <TouchableOpacity
+            style={styles.btnLogin}
+            onPress={handleLogin}
+            activeOpacity={0.85}
+          >
             <Text style={styles.btnLoginText}>Entrar</Text>
           </TouchableOpacity>
 
           {/* Cadastro */}
           <View style={styles.signupRow}>
             <Text style={styles.signupText}>Não tem conta? </Text>
-            <TouchableOpacity onPress={() => Alert.alert('Cadastro', 'Funcionalidade em breve!')}>
+            <TouchableOpacity onPress={handleCadastro}>
               <Text style={styles.signupLink}>Cadastrar</Text>
             </TouchableOpacity>
           </View>
+
+          {/* Rodapé */}
+          <Text style={styles.footerText}>Tecnologia por Sua Empresa</Text>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#0f0d0b',
-  },
-  flex: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 28,
-    paddingVertical: 40,
-  },
-  logoArea: {
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  logoIcon: {
-    width: 72,
-    height: 72,
-    borderRadius: 20,
-    backgroundColor: '#c8a96e',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  logoEmoji: {
-    fontSize: 32,
-  },
-  brandName: {
-    fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
-    fontSize: 26,
-    fontWeight: '700',
-    color: '#f5ede0',
-    letterSpacing: 1,
-    marginBottom: 4,
-  },
-  brandSub: {
-    fontSize: 11,
-    fontWeight: '300',
-    letterSpacing: 4,
-    color: '#c8a96e',
-  },
-  dividerGold: {
-    height: 1,
-    backgroundColor: '#c8a96e33',
-    marginBottom: 28,
-  },
-  fieldWrap: {
-    marginBottom: 18,
-  },
-  fieldLabel: {
-    fontSize: 11,
-    fontWeight: '500',
-    letterSpacing: 2,
-    color: '#c8a96e',
-    marginBottom: 8,
-  },
-  inputWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1c1814',
-    borderWidth: 1,
-    borderColor: '#2e2920',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-  },
-  input: {
-    flex: 1,
-    height: 50,
-    fontSize: 14,
-    color: '#f5ede0',
-  },
-  inputIcon: {
-    fontSize: 16,
-    color: '#5a5040',
-    paddingLeft: 8,
-  },
-  eyeBtn: {
-    padding: 4,
-  },
-  forgotWrap: {
-    alignSelf: 'flex-end',
-    marginBottom: 26,
-    marginTop: -4,
-  },
-  forgotText: {
-    fontSize: 12,
-    color: '#8c7a60',
-  },
-  btnLogin: {
-    backgroundColor: '#c8a96e',
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  btnLoginText: {
-    fontSize: 15,
-    fontWeight: '500',
-    letterSpacing: 1.5,
-    color: '#0f0d0b',
-  },
-  signupRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 24,
-  },
-  signupText: {
-    fontSize: 13,
-    color: '#5a5040',
-  },
-  signupLink: {
-    fontSize: 13,
-    color: '#c8a96e',
-    fontWeight: '500',
-  },
-});
+function createStyles(theme) {
+  return StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: theme.background,
+    },
+    flex: {
+      flex: 1,
+    },
+    scrollContent: {
+      flexGrow: 1,
+      justifyContent: 'center',
+      paddingHorizontal: 28,
+      paddingVertical: 40,
+    },
+    logoArea: {
+      alignItems: 'center',
+      marginBottom: 32,
+    },
+    logoIcon: {
+      width: 80,
+      height: 80,
+      borderRadius: 24,
+      backgroundColor: theme.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 16,
+      shadowColor: theme.shadow,
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: theme.isDark ? 0.4 : 0.2,
+      shadowRadius: 12,
+      elevation: 6,
+    },
+    logoEmoji: {
+      fontSize: 36,
+    },
+    brandName: {
+      fontSize: 26,
+      fontWeight: '800',
+      color: theme.text,
+      letterSpacing: 0.5,
+      marginBottom: 4,
+    },
+    brandSub: {
+      fontSize: 11,
+      fontWeight: '700',
+      letterSpacing: 3,
+      color: theme.accent,
+    },
+    divider: {
+      height: 1,
+      backgroundColor: theme.border,
+      marginBottom: 28,
+    },
+    fieldWrap: {
+      marginBottom: 18,
+    },
+    fieldLabel: {
+      fontSize: 11,
+      fontWeight: '700',
+      letterSpacing: 1.5,
+      color: theme.textMuted,
+      marginBottom: 8,
+    },
+    inputWrap: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.surface,
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 14,
+      paddingHorizontal: 16,
+      shadowColor: theme.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: theme.isDark ? 0.12 : 0.04,
+      shadowRadius: 4,
+      elevation: 1,
+    },
+    input: {
+      flex: 1,
+      height: 52,
+      fontSize: 15,
+      color: theme.text,
+    },
+    inputIcon: {
+      fontSize: 18,
+      paddingLeft: 8,
+    },
+    eyeBtn: {
+      padding: 4,
+    },
+    forgotWrap: {
+      alignSelf: 'flex-end',
+      marginBottom: 26,
+      marginTop: -4,
+    },
+    forgotText: {
+      fontSize: 13,
+      color: theme.primary,
+      fontWeight: '600',
+    },
+    btnLogin: {
+      backgroundColor: theme.primary,
+      borderRadius: 16,
+      paddingVertical: 17,
+      alignItems: 'center',
+      shadowColor: theme.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.35,
+      shadowRadius: 10,
+      elevation: 4,
+    },
+    btnLoginText: {
+      fontSize: 16,
+      fontWeight: '800',
+      letterSpacing: 0.5,
+      color: '#FFFFFF',
+    },
+    signupRow: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      marginTop: 24,
+    },
+    signupText: {
+      fontSize: 14,
+      color: theme.textMuted,
+    },
+    signupLink: {
+      fontSize: 14,
+      color: theme.primary,
+      fontWeight: '700',
+    },
+    footerText: {
+      textAlign: 'center',
+      marginTop: 36,
+      fontSize: 11,
+      fontWeight: '700',
+      color: theme.textSoft,
+    },
+  });
+}
