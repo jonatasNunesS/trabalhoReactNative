@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { useWindowDimensions } from 'react-native';
 import {
   NavigationContainer,
@@ -22,6 +22,7 @@ import ConfiguracoesPage from './pages/configPage';
 import AgendamentoPage from './pages/AgendamentoPage';
 import HorariosPage from './pages/HorariosPage';
 import ConfirmationPage from './pages/ConfirmationPage';
+import LoginPage from './pages/LoginPage';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -51,10 +52,51 @@ function AgendamentoStack() {
   );
 }
 
-function AppNavigation() {
+function MainTabs() {
   const { width } = useWindowDimensions();
   const { theme } = useContext(AppContext);
   const isMobile = width <= 767;
+
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarShowLabel: !isMobile,
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.textSoft,
+        tabBarStyle: {
+          backgroundColor: theme.tabBarBackground,
+          borderTopWidth: 1,
+          borderTopColor: theme.tabBarBorder,
+          height: isMobile ? 68 : 74,
+          paddingTop: 8,
+          paddingBottom: isMobile ? 10 : 8,
+        },
+        tabBarLabelStyle: {
+          fontFamily: 'Poppins_600SemiBold',
+          fontSize: 12,
+        },
+        tabBarIcon: ({ color, focused, size }) => (
+          <Ionicons
+            name={getTabIconName(route.name, focused)}
+            size={isMobile ? 24 : size}
+            color={color}
+          />
+        ),
+        sceneStyle: { backgroundColor: theme.background },
+      })}
+    >
+      <Tab.Screen name="Home" component={HomePage} />
+      <Tab.Screen name="Agendar" component={AgendamentoStack} />
+      <Tab.Screen name="Perfil" component={PerfilPage} />
+      <Tab.Screen name="Configurações" component={ConfiguracoesPage} />
+    </Tab.Navigator>
+  );
+}
+
+function AppNavigation() {
+  const { width } = useWindowDimensions();
+  const { theme } = useContext(AppContext);
 
   const navigationTheme = theme.isDark
     ? {
@@ -82,39 +124,13 @@ function AppNavigation() {
 
   return (
     <NavigationContainer theme={navigationTheme}>
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          headerShown: false,
-          tabBarShowLabel: !isMobile,
-          tabBarActiveTintColor: theme.primary,
-          tabBarInactiveTintColor: theme.textSoft,
-          tabBarStyle: {
-            backgroundColor: theme.tabBarBackground,
-            borderTopWidth: 1,
-            borderTopColor: theme.tabBarBorder,
-            height: isMobile ? 68 : 74,
-            paddingTop: 8,
-            paddingBottom: isMobile ? 10 : 8,
-          },
-          tabBarLabelStyle: {
-            fontFamily: 'Poppins_600SemiBold',
-            fontSize: 12,
-          },
-          tabBarIcon: ({ color, focused, size }) => (
-            <Ionicons
-              name={getTabIconName(route.name, focused)}
-              size={isMobile ? 24 : size}
-              color={color}
-            />
-          ),
-          sceneStyle: { backgroundColor: theme.background },
-        })}
-      >
-        <Tab.Screen name="Home" component={HomePage} />
-        <Tab.Screen name="Agendar" component={AgendamentoStack} />
-        <Tab.Screen name="Perfil" component={PerfilPage} />
-        <Tab.Screen name="Configurações" component={ConfiguracoesPage} />
-      </Tab.Navigator>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {/* Tela de login — primeira tela ao abrir o app */}
+        <Stack.Screen name="Login" component={LoginPage} />
+
+        {/* Após login bem-sucedido, navega para Main (replace) */}
+        <Stack.Screen name="Main" component={MainTabs} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }
