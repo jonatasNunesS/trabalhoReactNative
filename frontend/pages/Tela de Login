@@ -1,0 +1,238 @@
+import React, { useState } from 'react';
+import {View,Text,TextInput,TouchableOpacity,StyleSheet,SafeAreaView,StatusBar,KeyboardAvoidingView,Platform,ScrollView,Alert,
+} from 'react-native';
+
+export default function LoginScreen() {
+  const [identificador, setIdentificador] = useState('');
+  const [senha, setSenha] = useState('');
+  const [senhaVisivel, setSenhaVisivel] = useState(false);
+
+  const getIcone = () => {
+    if (!identificador) return '✉';
+    const isPhone =
+      /^[\d\s()+\-]/.test(identificador) && !identificador.includes('@');
+    return isPhone ? '📱' : '✉';
+  };
+
+  const getKeyboardType = () => {
+    if (!identificador) return 'email-address';
+    const isPhone =
+      /^[\d\s()+\-]/.test(identificador) && !identificador.includes('@');
+    return isPhone ? 'phone-pad' : 'email-address';
+  };
+
+  const handleLogin = () => {
+    if (!identificador || !senha) {
+      Alert.alert('Atenção', 'Preencha todos os campos.');
+      return;
+    }
+    Alert.alert('Login', `Identificador: ${identificador}`);
+  };
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#0f0d0b" />
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Logo e marca */}
+          <View style={styles.logoArea}>
+            <View style={styles.logoIcon}>
+              <Text style={styles.logoEmoji}>👽</Text>
+            </View>
+            <Text style={styles.brandName}>Barbearia Reis</Text>
+            <Text style={styles.brandSub}>Klayver</Text>
+          </View>
+
+          <View style={styles.dividerGold} />
+
+          {/* Campo e-mail ou celular unificado */}
+          <View style={styles.fieldWrap}>
+            <Text style={styles.fieldLabel}>E-MAIL OU CELULAR</Text>
+            <View style={styles.inputWrap}>
+              <TextInput
+                style={styles.input}
+                value={identificador}
+                onChangeText={setIdentificador}
+                placeholder="seu@email.com ou (11) 99999-9999"
+                placeholderTextColor="#5a5040"
+                keyboardType={getKeyboardType()}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+              <Text style={styles.inputIcon}>{getIcone()}</Text>
+            </View>
+          </View>
+
+          {/* Campo senha */}
+          <View style={styles.fieldWrap}>
+            <Text style={styles.fieldLabel}>SENHA</Text>
+            <View style={styles.inputWrap}>
+              <TextInput
+                style={styles.input}
+                value={senha}
+                onChangeText={setSenha}
+                placeholder="••••••••"
+                placeholderTextColor="#5a5040"
+                secureTextEntry={!senhaVisivel}
+                autoCapitalize="none"
+              />
+              <TouchableOpacity
+                onPress={() => setSenhaVisivel(!senhaVisivel)}
+                style={styles.eyeBtn}
+              >
+                <Text style={styles.inputIcon}>{senhaVisivel ? '🙈' : '👁'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Esqueceu a senha */}
+          <TouchableOpacity
+            style={styles.forgotWrap}
+            onPress={() => Alert.alert('Recuperar senha', 'Funcionalidade em breve!')}
+          >
+            <Text style={styles.forgotText}>Esqueceu a senha?</Text>
+          </TouchableOpacity>
+
+          {/* Botão entrar */}
+          <TouchableOpacity style={styles.btnLogin} onPress={handleLogin} activeOpacity={0.85}>
+            <Text style={styles.btnLoginText}>Entrar</Text>
+          </TouchableOpacity>
+
+          {/* Cadastro */}
+          <View style={styles.signupRow}>
+            <Text style={styles.signupText}>Não tem conta? </Text>
+            <TouchableOpacity onPress={() => Alert.alert('Cadastro', 'Funcionalidade em breve!')}>
+              <Text style={styles.signupLink}>Cadastrar</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#0f0d0b',
+  },
+  flex: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 28,
+    paddingVertical: 40,
+  },
+  logoArea: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  logoIcon: {
+    width: 72,
+    height: 72,
+    borderRadius: 20,
+    backgroundColor: '#c8a96e',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  logoEmoji: {
+    fontSize: 32,
+  },
+  brandName: {
+    fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
+    fontSize: 26,
+    fontWeight: '700',
+    color: '#f5ede0',
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  brandSub: {
+    fontSize: 11,
+    fontWeight: '300',
+    letterSpacing: 4,
+    color: '#c8a96e',
+  },
+  dividerGold: {
+    height: 1,
+    backgroundColor: '#c8a96e33',
+    marginBottom: 28,
+  },
+  fieldWrap: {
+    marginBottom: 18,
+  },
+  fieldLabel: {
+    fontSize: 11,
+    fontWeight: '500',
+    letterSpacing: 2,
+    color: '#c8a96e',
+    marginBottom: 8,
+  },
+  inputWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1c1814',
+    borderWidth: 1,
+    borderColor: '#2e2920',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+  },
+  input: {
+    flex: 1,
+    height: 50,
+    fontSize: 14,
+    color: '#f5ede0',
+  },
+  inputIcon: {
+    fontSize: 16,
+    color: '#5a5040',
+    paddingLeft: 8,
+  },
+  eyeBtn: {
+    padding: 4,
+  },
+  forgotWrap: {
+    alignSelf: 'flex-end',
+    marginBottom: 26,
+    marginTop: -4,
+  },
+  forgotText: {
+    fontSize: 12,
+    color: '#8c7a60',
+  },
+  btnLogin: {
+    backgroundColor: '#c8a96e',
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  btnLoginText: {
+    fontSize: 15,
+    fontWeight: '500',
+    letterSpacing: 1.5,
+    color: '#0f0d0b',
+  },
+  signupRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 24,
+  },
+  signupText: {
+    fontSize: 13,
+    color: '#5a5040',
+  },
+  signupLink: {
+    fontSize: 13,
+    color: '#c8a96e',
+    fontWeight: '500',
+  },
+});
