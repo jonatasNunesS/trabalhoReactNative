@@ -24,27 +24,75 @@ router.post('/', async (req, res) => {
         const sql = 'INSERT INTO clientes (nome, email, senha, telefone) VALUES (?, ?, ?, ?)';
         const [result] = await db.query(sql, [nome, email, senha, telefone]);
 
-        res.status(201).json({ message: 'Cliente criado com sucesso!', id: result.insertId });
+        res.status(201).json({
+            message: 'Cliente criado com sucesso!',
+            id: result.insertId
+        });
     } catch (err) {
-        res.status(500).json({ error: err });
+        console.error(err);
+        res.status(500).json({ error: err.message });
     }
 });
 
-// Login
+// Login com email OU telefone
 router.post('/login', async (req, res) => {
+    console.log('\n========== LOGIN ==========');
+    console.log('Body recebido:', req.body);
+
     try {
-        const { email, senha } = req.body;
+        const { identificador, senha } = req.body;
 
-        const sql = 'SELECT * FROM clientes WHERE email = ? AND senha = ?';
-        const [results] = await db.query(sql, [email, senha]);
+        if (!identificador || !senha) {
+            console.log('Identificador ou senha ausentes');
 
-        if (results.length === 0) {
-            return res.status(401).json({ error: 'Credenciais inválidas.' });
+            return res.status(400).json({
+                error: 'Informe email/telefone e senha.'
+            });
         }
 
-        res.json({ message: 'Login realizado com sucesso!', cliente: results[0] });
+        console.log('Identificador:', identificador);
+
+        const sql = `
+            SELECT *
+            FROM clientes
+            WHERE (email = ? OR telefone = ?)
+            AND senha = ?
+        `;
+
+        const [results] = await db.query(sql, [
+            identificador,
+            identificador,
+            senha
+        ]);
+
+        console.log('Quantidade encontrada:', results.length);
+
+        if (results.length === 0) {
+            console.log('Nenhum usuário encontrado');
+
+            return res.status(401).json({
+                error: 'Credenciais inválidas.'
+            });
+        }
+
+        console.log('Login realizado para:', results[0].nome);
+
+        res.json({
+            message: 'Login realizado com sucesso!',
+            cliente: {
+                id_cliente: results[0].id_cliente,
+                nome: results[0].nome,
+                email: results[0].email,
+                telefone: results[0].telefone
+            }
+        });
+
     } catch (err) {
-        res.status(500).json({ error: err });
+        console.error('Erro no login:', err);
+
+        res.status(500).json({
+            error: err.message
+        });
     }
 });
 
