@@ -25,13 +25,6 @@ export default function LoginPage({ navigation }) {
   const [senhaVisivel, setSenhaVisivel] = useState(false);
   const [erroLogin, setErroLogin] = useState('');
 
-  const getIcone = () => {
-    if (!identificador) return '✉';
-    const isPhone =
-      /^[\d\s()+\-]/.test(identificador) && !identificador.includes('@');
-    return isPhone ? '📱' : '✉';
-  };
-
   const getKeyboardType = () => {
     if (!identificador) return 'email-address';
     const isPhone =
@@ -49,7 +42,7 @@ export default function LoginPage({ navigation }) {
 
     try {
       const response = await fetch(
-        'http://"Digite seu ip aqui":3000/clientes/login',
+        'http://seu ip:3000/clientes/login',
         {
           method: 'POST',
           headers: {
@@ -64,23 +57,15 @@ export default function LoginPage({ navigation }) {
 
       const data = await response.json();
 
-      // 🔥 DEBUG (IMPORTANTE)
       console.log('STATUS:', response.status);
       console.log('DATA:', data);
 
-      // 🔴 ERRO GARANTIDO (backend ou HTTP)
       if (!response.ok || data?.error) {
         const mensagem = data?.error || 'Usuário ou senha inválidos';
-
         setErroLogin(mensagem);
-
-        console.log('ERRO DETECTADO:', mensagem);
-
-        // 🔥 ALERT GARANTIDO
         setTimeout(() => {
           Alert.alert('Falha no login', mensagem);
         }, 100);
-
         return;
       }
 
@@ -89,29 +74,17 @@ export default function LoginPage({ navigation }) {
         JSON.stringify(data.cliente)
       );
 
-      Alert.alert(
-        'Sucesso',
-        `Bem-vindo, ${data.cliente.nome}!`
-      );
-
+      Alert.alert('Sucesso', `Bem-vindo, ${data.cliente.nome}!`);
       navigation.replace('Main');
 
     } catch (error) {
       console.log(error);
-
-      Alert.alert(
-        'Erro',
-        'Não foi possível conectar ao servidor.'
-      );
+      Alert.alert('Erro', 'Não foi possível conectar ao servidor.');
     }
   };
 
   const handleCadastro = () => {
-    Alert.alert('Cadastro', 'Funcionalidade em breve!');
-  };
-
-  const handleEsqueceuSenha = () => {
-    Alert.alert('Recuperar senha', 'Funcionalidade em breve!');
+    navigation.navigate('Cadastro');
   };
 
   return (
@@ -139,7 +112,6 @@ export default function LoginPage({ navigation }) {
 
           <View style={styles.divider} />
 
-          {/* LOGIN */}
           <View style={styles.fieldWrap}>
             <Text style={styles.fieldLabel}>E-MAIL OU CELULAR</Text>
             <TextInput
@@ -149,10 +121,10 @@ export default function LoginPage({ navigation }) {
               placeholder="seu@email.com ou (11) 99999-9999"
               placeholderTextColor={theme.textSoft}
               keyboardType={getKeyboardType()}
+              autoCapitalize="none"
             />
           </View>
 
-          {/* SENHA */}
           <View style={styles.fieldWrap}>
             <Text style={styles.fieldLabel}>SENHA</Text>
             <TextInput
@@ -165,16 +137,19 @@ export default function LoginPage({ navigation }) {
             />
           </View>
 
-          <TouchableOpacity
-            style={styles.btnLogin}
-            onPress={handleLogin}
-          >
+          <TouchableOpacity style={styles.btnLogin} onPress={handleLogin}>
             <Text style={styles.btnLoginText}>Entrar</Text>
           </TouchableOpacity>
 
           {erroLogin ? (
             <Text style={styles.erroTexto}>{erroLogin}</Text>
           ) : null}
+
+          <View style={styles.divider} />
+
+          <TouchableOpacity style={styles.btnCadastro} onPress={handleCadastro}>
+            <Text style={styles.btnCadastroText}>Criar nova conta</Text>
+          </TouchableOpacity>
 
         </ScrollView>
       </KeyboardAvoidingView>
@@ -243,6 +218,19 @@ function createStyles(theme) {
       textAlign: 'center',
       color: '#ff4d4f',
       fontWeight: '600',
+    },
+
+    btnCadastro: {
+      borderWidth: 1,
+      borderColor: theme.border,
+      padding: 15,
+      borderRadius: 12,
+      alignItems: 'center',
+    },
+
+    btnCadastroText: {
+      color: theme.textMuted,
+      fontWeight: '700',
     },
   });
 }

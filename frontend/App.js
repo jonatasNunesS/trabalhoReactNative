@@ -23,6 +23,7 @@ import AgendamentoPage from './pages/AgendamentoPage';
 import HorariosPage from './pages/HorariosPage';
 import ConfirmationPage from './pages/ConfirmationPage';
 import LoginPage from './pages/LoginPage';
+import CadastroPage from './pages/CadastroPage';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -95,7 +96,6 @@ function MainTabs() {
 }
 
 function AppNavigation() {
-  const { width } = useWindowDimensions();
   const { theme } = useContext(AppContext);
 
   const navigationTheme = theme.isDark
@@ -125,10 +125,8 @@ function AppNavigation() {
   return (
     <NavigationContainer theme={navigationTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {/* Tela de login — primeira tela ao abrir o app */}
         <Stack.Screen name="Login" component={LoginPage} />
-
-        {/* Após login bem-sucedido, navega para Main (replace) */}
+        <Stack.Screen name="Cadastro" component={CadastroPage} />
         <Stack.Screen name="Main" component={MainTabs} />
       </Stack.Navigator>
     </NavigationContainer>
