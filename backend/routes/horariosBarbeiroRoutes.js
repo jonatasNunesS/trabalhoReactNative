@@ -2,14 +2,9 @@ const express = require('express');
 const router = express.Router();
 const db = require('../database/db');
 
-// Horários fixos do barbeiro
-const horariosPadrao = [
-    "08:00", "09:00", "10:00", "11:00",
-    "12:00", "13:00", "14:00", "15:00",
-    "16:00", "17:00", "18:00"
-];
-
-// Buscar horários disponíveis de um barbeiro
+// Buscar horários de um barbeiro para uma data — usa tabela horarios_barbeiro
+// BREAKING CHANGE: resposta agora retorna objetos com disponibilidade real,
+// não mais um array de strings de horários fixos.
 router.get('/:id_barbeiro', async (req, res) => {
     try {
         const { data } = req.query;
@@ -17,44 +12,57 @@ router.get('/:id_barbeiro', async (req, res) => {
 
         if (!data) {
             return res.status(400).json({
-                error: "A data é obrigatória. Exemplo: /1?data=2024-10-10"
+                erro: "A data é obrigatória. Exemplo: /1?data=2024-10-10"
             });
         }
 
-        // Verificar se o barbeiro existe
         const [barbeiroExiste] = await db.query(
             "SELECT id_barbeiro FROM barbeiros WHERE id_barbeiro = ?",
             [id_barbeiro]
         );
 
         if (barbeiroExiste.length === 0) {
-            return res.status(404).json({ error: "Barbeiro não encontrado." });
+            return res.status(404).json({ erro: "Barbeiro não encontrado." });
         }
 
-        // Buscar horários ocupados
-        const sql = `
-            SELECT hora 
-            FROM agendamentos 
-            WHERE id_barbeiro = ? AND data = ?
-        `;
-
-        const [results] = await db.query(sql, [id_barbeiro, data]);
-
-        const horariosOcupados = results.map(r => r.hora);
-
-        // Filtrar horários disponíveis
-        const horariosDisponiveis = horariosPadrao.filter(
-            h => !horariosOcupados.includes(h)
+        // Busca horários cadastrados para o barbeiro nessa data
+        const [horarios] = await db.query(
+            `SELECT id_horario, hora_inicio, hora_fim, disponivel, observacao
+             FROM horarios_barbeiro
+             WHERE id_barbeiro = ? AND dia = ?
+             ORDER BY hora_inicio`,
+            [id_barbeiro, data]
         );
 
-        res.json({
-            barbeiro: id_barbeiro,
-            data,
-            horarios_disponiveis: horariosDisponiveis
+        // Busca horários já ocupados por agendamentos não cancelados
+        const [agendados] = await db.query(
+            `SELECT hora FROM agendamentos
+             WHERE id_barbeiro = ? AND data = ? AND status != 'cancelado'`,
+            [id_barbeiro, data]
+        );
+
+        const horariosOcupados = agendados.map(a =>
+            typeof a.hora === 'string' ? a.hora.substring(0, 5) : a.hora
+        );
+
+        const resultado = horarios.map(h => {
+            const inicioStr = typeof h.hora_inicio === 'string'
+                ? h.hora_inicio.substring(0, 5)
+                : h.hora_inicio;
+            const ocupado = horariosOcupados.includes(inicioStr);
+            return {
+                id_horario: h.id_horario,
+                hora_inicio: inicioStr,
+                hora_fim: typeof h.hora_fim === 'string' ? h.hora_fim.substring(0, 5) : h.hora_fim,
+                disponivel: h.disponivel && !ocupado ? 1 : 0,
+                observacao: h.observacao
+            };
         });
 
+        res.json({ barbeiro: id_barbeiro, data, horarios: resultado });
+
     } catch (err) {
-        res.status(500).json({ error: "Erro ao buscar horários.", detalhes: err });
+        res.status(500).json({ erro: "Erro ao buscar horários." });
     }
 });
 
