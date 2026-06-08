@@ -58,14 +58,10 @@ function AgendamentoStack() {
 
 function MainTabs() {
   const { width } = useWindowDimensions();
-  const { theme, themeLoaded } = useContext(AppContext);
+  const { theme, themeLoaded, usuarioLogado } = useContext(AppContext);
   const isMobile = width <= 767;
 
-  // Bloqueia a renderização da navegação até o tema ter sido carregado do
-  // AsyncStorage. Isso evita o flash visual de tema incorreto no boot.
-  if (!themeLoaded) {
-    return null;
-  }
+  if (!themeLoaded) return null;
 
   return (
     <Tab.Navigator
@@ -98,7 +94,9 @@ function MainTabs() {
     >
       <Tab.Screen name="Home" component={HomePage} />
       <Tab.Screen name="Agendar" component={AgendamentoStack} />
-      <Tab.Screen name="Admin" component={AdminPage} />
+      {usuarioLogado?.is_admin && (
+        <Tab.Screen name="Admin" component={AdminPage} />
+      )}
       <Tab.Screen name="Perfil" component={PerfilPage} />
       <Tab.Screen name="Configurações" component={ConfiguracoesPage} />
     </Tab.Navigator>
@@ -106,7 +104,7 @@ function MainTabs() {
 }
 
 function AppNavigation() {
-  const { theme } = useContext(AppContext);
+  const { theme, themeLoaded, authLoaded, usuarioLogado } = useContext(AppContext);
 
   const navigationTheme = theme.isDark
     ? {
@@ -132,12 +130,20 @@ function AppNavigation() {
         },
       };
 
+  // Aguarda tema e sessão carregarem antes de decidir a rota inicial
+  if (!themeLoaded || !authLoaded) return null;
+
   return (
     <NavigationContainer theme={navigationTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={LoginPage} />
-        <Stack.Screen name="Cadastro" component={CadastroPage} />
-        <Stack.Screen name="Main" component={MainTabs} />
+        {usuarioLogado ? (
+          <Stack.Screen name="Main" component={MainTabs} />
+        ) : (
+          <>
+            <Stack.Screen name="Login" component={LoginPage} />
+            <Stack.Screen name="Cadastro" component={CadastroPage} />
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );

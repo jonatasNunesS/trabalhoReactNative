@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useAppTheme } from '../context/AppContext';
+import { useAppTheme, useAppAuth } from '../context/AppContext';
 import { formatPrice } from '../utils/formatters';
 import {
   getAdminDashboard,
@@ -969,8 +969,23 @@ const TABS = [
 
 export default function AdminPage() {
   const { theme } = useAppTheme();
+  const { isAdmin } = useAppAuth();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const [activeTab, setActiveTab] = useState('visao');
+
+  if (!isAdmin) {
+    return (
+      <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={theme.background} />
+        <Text style={{ color: theme.textMuted, fontSize: 18, fontWeight: '700', marginBottom: 8 }}>
+          Acesso Restrito
+        </Text>
+        <Text style={{ color: theme.textMuted, textAlign: 'center', paddingHorizontal: 32 }}>
+          Esta área é exclusiva para administradores.
+        </Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>

@@ -1,32 +1,58 @@
 import React, { useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StatusBar, StyleSheet, Text, View } from 'react-native';
+import { Alert, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Avatar from '../components/Avatar';
-import { useAppTheme } from '../context/AppContext';
+import { useAppTheme, useAppAuth } from '../context/AppContext';
 
 export default function PerfilPage() {
   const { theme } = useAppTheme();
+  const { usuarioLogado, isAdmin, logout } = useAppAuth();
   const styles = useMemo(() => createStyles(theme), [theme]);
+
+  const nomeDisplay = usuarioLogado?.nome || 'Usuário';
+  const emailDisplay = usuarioLogado?.email || '';
+  const telefoneDisplay = usuarioLogado?.telefone || '';
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Sair da conta',
+      'Tem certeza que deseja sair?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Sair',
+          style: 'destructive',
+          onPress: async () => {
+            await logout();
+            // App.js detecta usuarioLogado = null e redireciona para Login automaticamente
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle={theme.statusBar} backgroundColor={theme.background} />
+      <StatusBar
+        barStyle={theme.isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={theme.background}
+      />
 
       <View style={styles.card}>
-        <Avatar size={78} name="Cliente" />
-        <Text style={styles.title}>Seu perfil</Text>
-        <Text style={styles.subtitle}>
-          Área preparada para exibir seus dados, histórico de horários e preferências futuras.
-        </Text>
+        <Avatar size={78} name={nomeDisplay} />
+        <Text style={styles.name}>{nomeDisplay}</Text>
+        {emailDisplay ? <Text style={styles.detail}>{emailDisplay}</Text> : null}
+        {telefoneDisplay ? <Text style={styles.detail}>{telefoneDisplay}</Text> : null}
+        <View style={styles.badgeWrap}>
+          <Text style={[styles.badge, isAdmin ? styles.badgeAdmin : styles.badgeCliente]}>
+            {isAdmin ? 'Administrador' : 'Cliente'}
+          </Text>
+        </View>
       </View>
 
-      <View style={styles.infoCard}>
-        <Text style={styles.infoLabel}>Status atual</Text>
-        <Text style={styles.infoValue}>Perfil em construção</Text>
-        <Text style={styles.infoText}>
-          Esta aba pode receber informações pessoais, métodos de contato e histórico de atendimentos.
-        </Text>
-      </View>
+      <TouchableOpacity style={styles.btnLogout} onPress={handleLogout} activeOpacity={0.85}>
+        <Text style={styles.btnLogoutText}>Sair da conta</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -48,42 +74,48 @@ function createStyles(theme) {
       borderColor: theme.border,
       marginBottom: 18,
     },
-    title: {
+    name: {
       marginTop: 14,
       color: theme.text,
-      fontSize: 24,
+      fontSize: 22,
       fontWeight: '800',
     },
-    subtitle: {
-      marginTop: 8,
+    detail: {
+      marginTop: 4,
       color: theme.textMuted,
-      textAlign: 'center',
-      lineHeight: 22,
+      fontSize: 14,
     },
-    infoCard: {
-      backgroundColor: theme.surface,
-      borderRadius: 18,
-      padding: 18,
-      borderWidth: 1,
-      borderColor: theme.border,
+    badgeWrap: {
+      marginTop: 14,
     },
-    infoLabel: {
-      color: theme.textMuted,
+    badge: {
+      paddingHorizontal: 16,
+      paddingVertical: 5,
+      borderRadius: 20,
       fontSize: 12,
       fontWeight: '700',
-      textTransform: 'uppercase',
-      letterSpacing: 0.6,
-      marginBottom: 6,
+      overflow: 'hidden',
     },
-    infoValue: {
+    badgeAdmin: {
+      backgroundColor: theme.primary + '33',
       color: theme.primary,
-      fontSize: 18,
-      fontWeight: '800',
-      marginBottom: 10,
     },
-    infoText: {
-      color: theme.textSecondary,
-      lineHeight: 22,
+    badgeCliente: {
+      backgroundColor: theme.border,
+      color: theme.textMuted,
+    },
+    btnLogout: {
+      marginTop: 'auto',
+      marginBottom: 10,
+      backgroundColor: '#ef4444',
+      borderRadius: 14,
+      padding: 16,
+      alignItems: 'center',
+    },
+    btnLogoutText: {
+      color: '#fff',
+      fontWeight: '700',
+      fontSize: 16,
     },
   });
 }

@@ -74,7 +74,8 @@ CREATE TABLE `clientes` (
   `telefone` varchar(20) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   `senha` varchar(255) DEFAULT NULL,
-  `tipo_usuario` enum('admin','cliente') DEFAULT 'cliente'
+  `tipo_usuario` enum('admin','cliente') DEFAULT 'cliente',
+  `is_admin` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------

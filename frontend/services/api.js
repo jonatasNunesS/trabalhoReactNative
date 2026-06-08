@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   getSchedulingPageData as getMockSchedulingPageData,
   getProfessionalsPageData as getMockProfessionalsPageData,
@@ -36,10 +37,37 @@ function buildQS(params = {}) {
 async function request(path, options = {}) {
   const { method = 'GET', body } = options;
   const config = { method, headers: { 'Content-Type': 'application/json' } };
+  try {
+    const token = await AsyncStorage.getItem('authToken');
+    if (token) config.headers['Authorization'] = `Bearer ${token}`;
+  } catch {}
   if (body !== undefined) config.body = JSON.stringify(body);
   const response = await fetch(`${API_BASE_URL}${path}`, config);
   if (!response.ok) throw new Error(`Erro HTTP ${response.status}`);
   return response.json();
+}
+
+// ─── Auth (sempre chamam o backend real, independente de USE_REMOTE_API) ───────
+
+export async function loginCliente({ identificador, senha }) {
+  const response = await fetch(`${API_BASE_URL}/clientes/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identificador, senha }),
+  });
+  const data = await response.json();
+  if (!response.ok || data?.erro) {
+    throw new Error(data?.erro || data?.error || 'Usuário ou senha inválidos');
+  }
+  return data; // { message, cliente, token }
+}
+
+export async function logoutCliente() {
+  try {
+    await request('/clientes/logout', { method: 'POST' });
+  } catch {
+    // JWT é stateless — logout real é feito removendo o token no frontend
+  }
 }
 
 // ─── Existing functions ──────────────────────────────────────────────────────

@@ -9,52 +9,57 @@ import React, {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getTheme } from '../theme/appTheme';
 
-// ─── Chave de persistência ─────────────────────────────────────────────────
 const THEME_STORAGE_KEY = 'app_theme';
+const AUTH_USER_KEY = 'usuarioLogado';
+const AUTH_TOKEN_KEY = 'authToken';
 
-// ─── Contexto global ───────────────────────────────────────────────────────
 export const AppContext = createContext();
 
-// ─── Provider ──────────────────────────────────────────────────────────────
 export const AppProvider = ({ children }) => {
-  // Estado do fluxo de agendamento
+  // ── Agendamento ────────────────────────────────────────────────────────
   const [servicoSelecionado, setServicoSelecionado] = useState(null);
   const [barbeiroSelecionado, setBarbeiroSelecionado] = useState(null);
   const [dataSelecionada, setDataSelecionada] = useState(null);
   const [horaSelecionada, setHoraSelecionada] = useState(null);
 
-  // Estado do tema
+  // ── Tema ───────────────────────────────────────────────────────────────
   const [darkMode, setDarkMode] = useState(false);
-  // themeLoaded impede o flash de tema incorreto ao iniciar o app:
-  // a UI só é renderizada após a preferência salva ter sido lida do AsyncStorage.
   const [themeLoaded, setThemeLoaded] = useState(false);
 
-  // ── Restaurar tema salvo no boot ──────────────────────────────────────
+  // ── Auth ───────────────────────────────────────────────────────────────
+  const [usuarioLogado, setUsuarioLogado] = useState(null);
+  const [authToken, setAuthToken] = useState(null);
+  const [authLoaded, setAuthLoaded] = useState(false);
+
+  // ── Inicialização única: tema + sessão ─────────────────────────────────
   useEffect(() => {
     (async () => {
       try {
-        const saved = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-        // Se não houver valor salvo, mantém o padrão claro (false).
-        if (saved === 'dark') {
-          setDarkMode(true);
+        const [savedTheme, savedUser, savedToken] = await Promise.all([
+          AsyncStorage.getItem(THEME_STORAGE_KEY),
+          AsyncStorage.getItem(AUTH_USER_KEY),
+          AsyncStorage.getItem(AUTH_TOKEN_KEY),
+        ]);
+        if (savedTheme === 'dark') setDarkMode(true);
+        if (savedUser) {
+          try { setUsuarioLogado(JSON.parse(savedUser)); } catch {}
         }
+        if (savedToken) setAuthToken(savedToken);
       } catch (e) {
-        // Em caso de erro de leitura, usa o padrão claro sem travar o app.
-        console.warn('[AppContext] Erro ao ler tema salvo:', e);
+        console.warn('[AppContext] Erro ao inicializar:', e);
       } finally {
         setThemeLoaded(true);
+        setAuthLoaded(true);
       }
     })();
   }, []);
 
-  // ── Objeto de tema derivado ────────────────────────────────────────────
+  // ── Tema ───────────────────────────────────────────────────────────────
   const theme = useMemo(() => getTheme(darkMode), [darkMode]);
 
-  // ── Alternar tema e persistir a escolha ───────────────────────────────
   const toggleDarkMode = useCallback(async () => {
     setDarkMode((current) => {
       const next = !current;
-      // Persiste de forma assíncrona sem bloquear a atualização de estado
       AsyncStorage.setItem(THEME_STORAGE_KEY, next ? 'dark' : 'light').catch((e) =>
         console.warn('[AppContext] Erro ao salvar tema:', e)
       );
@@ -62,7 +67,6 @@ export const AppProvider = ({ children }) => {
     });
   }, []);
 
-  // ── setDarkMode com persistência (para uso direto se necessário) ───────
   const setDarkModeWithPersist = useCallback(async (value) => {
     setDarkMode(value);
     try {
@@ -72,49 +76,55 @@ export const AppProvider = ({ children }) => {
     }
   }, []);
 
+  // ── Auth ───────────────────────────────────────────────────────────────
+  const login = useCallback(async (usuario, token) => {
+    setUsuarioLogado(usuario);
+    setAuthToken(token || null);
+    const ops = [AsyncStorage.setItem(AUTH_USER_KEY, JSON.stringify(usuario))];
+    if (token) ops.push(AsyncStorage.setItem(AUTH_TOKEN_KEY, token));
+    else ops.push(AsyncStorage.removeItem(AUTH_TOKEN_KEY));
+    await Promise.all(ops).catch((e) =>
+      console.warn('[AppContext] Erro ao salvar sessão:', e)
+    );
+  }, []);
+
+  const logout = useCallback(async () => {
+    setUsuarioLogado(null);
+    setAuthToken(null);
+    await AsyncStorage.multiRemove([AUTH_USER_KEY, AUTH_TOKEN_KEY]).catch((e) =>
+      console.warn('[AppContext] Erro ao limpar sessão:', e)
+    );
+  }, []);
+
+  const isAdmin = Boolean(usuarioLogado?.is_admin);
+
   // ── Valor do contexto ──────────────────────────────────────────────────
   const value = useMemo(
     () => ({
       // Agendamento
-      servicoSelecionado,
-      setServicoSelecionado,
-      barbeiroSelecionado,
-      setBarbeiroSelecionado,
-      dataSelecionada,
-      setDataSelecionada,
-      horaSelecionada,
-      setHoraSelecionada,
+      servicoSelecionado, setServicoSelecionado,
+      barbeiroSelecionado, setBarbeiroSelecionado,
+      dataSelecionada, setDataSelecionada,
+      horaSelecionada, setHoraSelecionada,
       // Tema
-      darkMode,
-      setDarkMode: setDarkModeWithPersist,
-      toggleDarkMode,
-      theme,
-      themeLoaded,
+      darkMode, setDarkMode: setDarkModeWithPersist, toggleDarkMode, theme, themeLoaded,
+      // Auth
+      usuarioLogado, authToken, authLoaded, isAdmin, login, logout,
     }),
     [
-      servicoSelecionado,
-      barbeiroSelecionado,
-      dataSelecionada,
-      horaSelecionada,
-      darkMode,
-      theme,
-      themeLoaded,
-      toggleDarkMode,
-      setDarkModeWithPersist,
+      servicoSelecionado, barbeiroSelecionado, dataSelecionada, horaSelecionada,
+      darkMode, theme, themeLoaded, toggleDarkMode, setDarkModeWithPersist,
+      usuarioLogado, authToken, authLoaded, isAdmin, login, logout,
     ]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
 
-// ─── Hook de tema (usado por componentes e páginas) ────────────────────────
+// ─── Hook de tema ──────────────────────────────────────────────────────────────
 export function useAppTheme() {
   const context = useContext(AppContext);
-
-  if (!context) {
-    throw new Error('useAppTheme deve ser usado dentro de AppProvider');
-  }
-
+  if (!context) throw new Error('useAppTheme deve ser usado dentro de AppProvider');
   return {
     theme: context.theme,
     darkMode: context.darkMode,
@@ -122,5 +132,18 @@ export function useAppTheme() {
     themeLoaded: context.themeLoaded,
     setDarkMode: context.setDarkMode,
     toggleDarkMode: context.toggleDarkMode,
+  };
+}
+
+// ─── Hook de autenticação ──────────────────────────────────────────────────────
+export function useAppAuth() {
+  const context = useContext(AppContext);
+  if (!context) throw new Error('useAppAuth deve ser usado dentro de AppProvider');
+  return {
+    usuarioLogado: context.usuarioLogado,
+    isAdmin: context.isAdmin,
+    authLoaded: context.authLoaded,
+    login: context.login,
+    logout: context.logout,
   };
 }

@@ -21,7 +21,7 @@ const SEED = {
   agendamentos: [],
   horarios_barbeiro: [],
   clientes: [
-    { id_cliente: 1, nome: 'Administrador', email: 'admin@barbearia.com', senha: 'admin123', telefone: '11999999999', tipo_usuario: 'admin' },
+    { id_cliente: 1, nome: 'Administrador', email: 'admin@barbearia.com', senha: 'admin123', telefone: '11999999999', tipo_usuario: 'admin', is_admin: 1 },
   ],
   barbeiro_procedimento: [
     { id_barbeiro: 1, id_procedimento: 1, habilitado: 1 },
@@ -57,7 +57,7 @@ const DEFAULTS = {
   barbeiros:        { ativo: 1 },
   procedimentos:    { ativo: 1 },
   horarios_barbeiro:{ disponivel: 1 },
-  clientes:         { tipo_usuario: 'cliente' },
+  clientes:         { tipo_usuario: 'cliente', is_admin: 0 },
   barbeiro_procedimento: { habilitado: 1 },
 };
 

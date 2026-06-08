@@ -1,23 +1,32 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database/db');
+const jwt = require('jsonwebtoken');
 
-// TODO: Futuramente, adicionar middleware de autenticação admin antes de todas as rotas.
-// Descomente e implemente a função abaixo quando JWT estiver configurado:
-//
-// const verificarAdmin = (req, res, next) => {
-//   const token = req.headers.authorization?.split(' ')[1];
-//   if (!token) return res.status(401).json({ erro: 'Token não informado.' });
-//   try {
-//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-//     if (decoded.tipo_usuario !== 'admin') return res.status(403).json({ erro: 'Acesso restrito a administradores.' });
-//     req.usuario = decoded;
-//     next();
-//   } catch {
-//     return res.status(401).json({ erro: 'Token inválido ou expirado.' });
-//   }
-// };
-// router.use(verificarAdmin);
+// TODO: Em produção, defina JWT_SECRET em variável de ambiente segura.
+const JWT_SECRET = process.env.JWT_SECRET || 'barbearia_dev_secret_2026';
+
+// Middleware: bloqueia qualquer rota /admin para não-admins.
+// Frontend esconder a aba não é suficiente — o backend também deve proteger.
+function verificarAdmin(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ erro: 'Token não informado.' });
+    }
+    const token = authHeader.split(' ')[1];
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        if (!decoded.is_admin) {
+            return res.status(403).json({ erro: 'Acesso restrito a administradores.' });
+        }
+        req.usuario = decoded;
+        next();
+    } catch {
+        return res.status(401).json({ erro: 'Token inválido ou expirado.' });
+    }
+}
+
+router.use(verificarAdmin);
 
 const STATUS_VALIDOS = ['pendente', 'confirmado', 'concluido', 'cancelado'];
 

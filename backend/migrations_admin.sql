@@ -59,13 +59,25 @@ ALTER TABLE `horarios_barbeiro`
   ADD COLUMN IF NOT EXISTS `atualizado_em` DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
 -- ================================================================
--- 5. USUÁRIO ADMINISTRADOR (seed de desenvolvimento)
+-- 5. TABELA: clientes
+-- Adiciona is_admin para controle de acesso (padroniza sobre tipo_usuario)
+-- ================================================================
+
+ALTER TABLE `clientes`
+  ADD COLUMN IF NOT EXISTS `is_admin` TINYINT(1) NOT NULL DEFAULT 0;
+
+-- Sincroniza is_admin com tipo_usuario existente
+UPDATE `clientes` SET is_admin = 1 WHERE tipo_usuario = 'admin' OR email = 'admin@barbearia.com';
+UPDATE `clientes` SET is_admin = 0 WHERE (tipo_usuario = 'cliente' OR tipo_usuario IS NULL) AND is_admin != 1;
+
+-- ================================================================
+-- 6. USUÁRIO ADMINISTRADOR (seed de desenvolvimento)
 -- Cria um usuário admin apenas se não existir nenhum com esse e-mail.
 -- Senha em texto puro — adequado para dev; usar hash (bcrypt) em produção.
 -- ================================================================
 
-INSERT INTO `clientes` (nome, email, senha, telefone, tipo_usuario)
-SELECT 'Administrador', 'admin@barbearia.com', 'admin123', '11999999999', 'admin'
+INSERT INTO `clientes` (nome, email, senha, telefone, tipo_usuario, is_admin)
+SELECT 'Administrador', 'admin@barbearia.com', 'admin123', '11999999999', 'admin', 1
 WHERE NOT EXISTS (
     SELECT 1 FROM `clientes` WHERE email = 'admin@barbearia.com'
 );
