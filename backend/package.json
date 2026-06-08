@@ -1,4 +1,7 @@
-{
+{"scripts": {
+    "dev": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "dependencies": {
     "cors": "^2.8.6",
     "express": "^5.2.1",
