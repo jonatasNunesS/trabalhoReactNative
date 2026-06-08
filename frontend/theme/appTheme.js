@@ -1,3 +1,4 @@
+// ─── Paleta de cores-base ──────────────────────────────────────────────────
 export const palette = {
   primary: '#1E40AF',
   primaryDark: '#1E3A8A',
@@ -6,6 +7,35 @@ export const palette = {
   black: '#000000',
 };
 
+// ─── Alias estático para componentes que não consomem tema dinâmico ────────
+// (usado por FlowHeader, que tem header sempre na cor primária fixa)
+export const colors = {
+  primary: palette.primary,
+  primaryDark: palette.primaryDark,
+  accent: palette.accent,
+  white: palette.white,
+  black: palette.black,
+};
+
+// ─── Espaçamentos e raios centralizados ───────────────────────────────────
+export const spacing = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 24,
+  xxl: 32,
+};
+
+export const radius = {
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  pill: 999,
+};
+
+// ─── Tema Claro ────────────────────────────────────────────────────────────
 export const lightTheme = {
   isDark: false,
   statusBar: 'dark-content',
@@ -33,6 +63,7 @@ export const lightTheme = {
   overlay: 'rgba(15, 23, 42, 0.08)',
 };
 
+// ─── Tema Escuro ───────────────────────────────────────────────────────────
 export const darkTheme = {
   isDark: true,
   statusBar: 'light-content',
@@ -60,6 +91,7 @@ export const darkTheme = {
   overlay: 'rgba(15, 23, 42, 0.3)',
 };
 
+// ─── Seletor de tema ───────────────────────────────────────────────────────
 export function getTheme(darkMode) {
   return darkMode ? darkTheme : lightTheme;
 }

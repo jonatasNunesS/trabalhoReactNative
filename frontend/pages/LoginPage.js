@@ -13,11 +13,12 @@ import {
   View,
 } from 'react-native';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAppTheme } from '../context/AppContext';
+import { useAppTheme, useAppAuth } from '../context/AppContext';
+import { loginCliente } from '../services/api';
 
 export default function LoginPage({ navigation }) {
   const { theme } = useAppTheme();
+  const { login } = useAppAuth();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
   const [identificador, setIdentificador] = useState('');
@@ -41,45 +42,13 @@ export default function LoginPage({ navigation }) {
     }
 
     try {
-      const response = await fetch(
-        'http://seu ip:3000/clientes/login',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            identificador,
-            senha,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      console.log('STATUS:', response.status);
-      console.log('DATA:', data);
-
-      if (!response.ok || data?.error) {
-        const mensagem = data?.error || 'Usuário ou senha inválidos';
-        setErroLogin(mensagem);
-        setTimeout(() => {
-          Alert.alert('Falha no login', mensagem);
-        }, 100);
-        return;
-      }
-
-      await AsyncStorage.setItem(
-        'usuarioLogado',
-        JSON.stringify(data.cliente)
-      );
-
-      Alert.alert('Sucesso', `Bem-vindo, ${data.cliente.nome}!`);
-      navigation.replace('Main');
-
-    } catch (error) {
-      console.log(error);
-      Alert.alert('Erro', 'Não foi possível conectar ao servidor.');
+      const data = await loginCliente({ identificador, senha });
+      await login(data.cliente, data.token);
+      // Navegação automática: App.js detecta usuarioLogado e exibe MainTabs
+    } catch (err) {
+      const mensagem = err.message || 'Não foi possível conectar ao servidor.';
+      setErroLogin(mensagem);
+      setTimeout(() => Alert.alert('Falha no login', mensagem), 100);
     }
   };
 

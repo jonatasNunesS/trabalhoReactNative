@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { useWindowDimensions } from 'react-native';
 import {
   NavigationContainer,
@@ -22,6 +22,7 @@ import ConfiguracoesPage from './pages/configPage';
 import AgendamentoPage from './pages/AgendamentoPage';
 import HorariosPage from './pages/HorariosPage';
 import ConfirmationPage from './pages/ConfirmationPage';
+import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
 import CadastroPage from './pages/CadastroPage';
 
@@ -34,6 +35,8 @@ function getTabIconName(routeName, focused) {
       return focused ? 'home' : 'home-outline';
     case 'Agendar':
       return focused ? 'calendar' : 'calendar-outline';
+    case 'Admin':
+      return focused ? 'shield-checkmark' : 'shield-checkmark-outline';
     case 'Perfil':
       return focused ? 'person' : 'person-outline';
     case 'Configurações':
@@ -55,8 +58,10 @@ function AgendamentoStack() {
 
 function MainTabs() {
   const { width } = useWindowDimensions();
-  const { theme } = useContext(AppContext);
+  const { theme, themeLoaded, usuarioLogado } = useContext(AppContext);
   const isMobile = width <= 767;
+
+  if (!themeLoaded) return null;
 
   return (
     <Tab.Navigator
@@ -89,6 +94,9 @@ function MainTabs() {
     >
       <Tab.Screen name="Home" component={HomePage} />
       <Tab.Screen name="Agendar" component={AgendamentoStack} />
+      {usuarioLogado?.is_admin && (
+        <Tab.Screen name="Admin" component={AdminPage} />
+      )}
       <Tab.Screen name="Perfil" component={PerfilPage} />
       <Tab.Screen name="Configurações" component={ConfiguracoesPage} />
     </Tab.Navigator>
@@ -96,7 +104,7 @@ function MainTabs() {
 }
 
 function AppNavigation() {
-  const { theme } = useContext(AppContext);
+  const { theme, themeLoaded, authLoaded, usuarioLogado } = useContext(AppContext);
 
   const navigationTheme = theme.isDark
     ? {
@@ -122,12 +130,20 @@ function AppNavigation() {
         },
       };
 
+  // Aguarda tema e sessão carregarem antes de decidir a rota inicial
+  if (!themeLoaded || !authLoaded) return null;
+
   return (
     <NavigationContainer theme={navigationTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={LoginPage} />
-        <Stack.Screen name="Cadastro" component={CadastroPage} />
-        <Stack.Screen name="Main" component={MainTabs} />
+        {usuarioLogado ? (
+          <Stack.Screen name="Main" component={MainTabs} />
+        ) : (
+          <>
+            <Stack.Screen name="Login" component={LoginPage} />
+            <Stack.Screen name="Cadastro" component={CadastroPage} />
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );
