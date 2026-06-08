@@ -1,7 +1,7 @@
 export const palette = {
   primary: '#1E40AF',
   primaryDark: '#1E3A8A',
-  accent: '#22B8B0',
+  accent: '#1E3A8A',
   white: '#FFFFFF',
   black: '#000000',
 };

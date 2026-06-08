@@ -13,19 +13,27 @@ const getHorariosStyles = (theme) =>
     header: {
       backgroundColor: theme.primaryDark,
       paddingHorizontal: 16,
-      paddingVertical: 18,
+      paddingVertical: 0,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
     },
     headerButton: {
       paddingHorizontal: 8,
-      paddingVertical: 4,
+      paddingVertical: 1,
     },
     headerBack: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
       color: '#FFFFFF',
-      fontSize: 28,
-      fontWeight: '700',
+      borderRadius: 16, 
+     fontSize: 36,
+     top: -2.1,
+      backgroundColor: '#cbcbcb8a',
+      width: 32,
+      height: 32, 
+        
     },
     headerTitle: {
       color: '#FFFFFF',
@@ -84,15 +92,15 @@ const getHorariosStyles = (theme) =>
       letterSpacing: 0.6,
     },
     summaryTitle: {
-      fontSize: 21,
+      fontSize: 18,
       color: theme.text,
-      fontWeight: '800',
-      marginTop: 8,
+      fontWeight: '700',
+      marginTop: 3,
     },
     summarySubtitle: {
       fontSize: 14,
       color: theme.textSecondary,
-      marginTop: 6,
+      marginTop: 3,
     },
     sectionTitle: {
       fontSize: 20,
