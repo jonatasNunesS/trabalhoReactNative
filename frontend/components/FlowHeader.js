@@ -1,5 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+// colors, radius, spacing são exportados por appTheme.js como aliases estáticos.
+// O header de fluxo usa sempre a cor primária fixa (design proposital),
+// portanto não precisa reagir ao tema dinâmico — apenas os tokens base.
 import { colors, radius, spacing } from '../theme/appTheme';
 
 export default function FlowHeader({

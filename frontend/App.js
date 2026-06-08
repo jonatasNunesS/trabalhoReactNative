@@ -22,6 +22,7 @@ import ConfiguracoesPage from './pages/configPage';
 import AgendamentoPage from './pages/AgendamentoPage';
 import HorariosPage from './pages/HorariosPage';
 import ConfirmationPage from './pages/ConfirmationPage';
+import AdminPage from './pages/AdminPage';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -32,6 +33,8 @@ function getTabIconName(routeName, focused) {
       return focused ? 'home' : 'home-outline';
     case 'Agendar':
       return focused ? 'calendar' : 'calendar-outline';
+    case 'Admin':
+      return focused ? 'shield-checkmark' : 'shield-checkmark-outline';
     case 'Perfil':
       return focused ? 'person' : 'person-outline';
     case 'Configurações':
@@ -53,8 +56,14 @@ function AgendamentoStack() {
 
 function AppNavigation() {
   const { width } = useWindowDimensions();
-  const { theme } = useContext(AppContext);
+  const { theme, themeLoaded } = useContext(AppContext);
   const isMobile = width <= 767;
+
+  // Bloqueia a renderização da navegação até o tema ter sido carregado do
+  // AsyncStorage. Isso evita o flash visual de tema incorreto no boot.
+  if (!themeLoaded) {
+    return null;
+  }
 
   const navigationTheme = theme.isDark
     ? {
@@ -112,6 +121,7 @@ function AppNavigation() {
       >
         <Tab.Screen name="Home" component={HomePage} />
         <Tab.Screen name="Agendar" component={AgendamentoStack} />
+        <Tab.Screen name="Admin" component={AdminPage} />
         <Tab.Screen name="Perfil" component={PerfilPage} />
         <Tab.Screen name="Configurações" component={ConfiguracoesPage} />
       </Tab.Navigator>
