@@ -25,7 +25,7 @@ import {
 } from './mockApi';
 
 const USE_REMOTE_API = false;
-const API_BASE_URL = 'http://SEU_IP_OU_DOMINIO:3000';
+const API_BASE_URL = 'http://localhost:3000';
 
 function buildQS(params = {}) {
   const pairs = Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '');
