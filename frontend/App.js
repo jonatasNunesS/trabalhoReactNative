@@ -23,6 +23,8 @@ import AgendamentoPage from './pages/AgendamentoPage';
 import HorariosPage from './pages/HorariosPage';
 import ConfirmationPage from './pages/ConfirmationPage';
 import AdminPage from './pages/AdminPage';
+import LoginPage from './pages/LoginPage';
+import CadastroPage from './pages/CadastroPage';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -54,7 +56,7 @@ function AgendamentoStack() {
   );
 }
 
-function AppNavigation() {
+function MainTabs() {
   const { width } = useWindowDimensions();
   const { theme, themeLoaded } = useContext(AppContext);
   const isMobile = width <= 767;
@@ -64,6 +66,47 @@ function AppNavigation() {
   if (!themeLoaded) {
     return null;
   }
+
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarShowLabel: !isMobile,
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.textSoft,
+        tabBarStyle: {
+          backgroundColor: theme.tabBarBackground,
+          borderTopWidth: 1,
+          borderTopColor: theme.tabBarBorder,
+          height: isMobile ? 68 : 74,
+          paddingTop: 8,
+          paddingBottom: isMobile ? 10 : 8,
+        },
+        tabBarLabelStyle: {
+          fontFamily: 'Poppins_600SemiBold',
+          fontSize: 12,
+        },
+        tabBarIcon: ({ color, focused, size }) => (
+          <Ionicons
+            name={getTabIconName(route.name, focused)}
+            size={isMobile ? 24 : size}
+            color={color}
+          />
+        ),
+        sceneStyle: { backgroundColor: theme.background },
+      })}
+    >
+      <Tab.Screen name="Home" component={HomePage} />
+      <Tab.Screen name="Agendar" component={AgendamentoStack} />
+      <Tab.Screen name="Admin" component={AdminPage} />
+      <Tab.Screen name="Perfil" component={PerfilPage} />
+      <Tab.Screen name="Configurações" component={ConfiguracoesPage} />
+    </Tab.Navigator>
+  );
+}
+
+function AppNavigation() {
+  const { theme } = useContext(AppContext);
 
   const navigationTheme = theme.isDark
     ? {
@@ -91,40 +134,11 @@ function AppNavigation() {
 
   return (
     <NavigationContainer theme={navigationTheme}>
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          headerShown: false,
-          tabBarShowLabel: !isMobile,
-          tabBarActiveTintColor: theme.primary,
-          tabBarInactiveTintColor: theme.textSoft,
-          tabBarStyle: {
-            backgroundColor: theme.tabBarBackground,
-            borderTopWidth: 1,
-            borderTopColor: theme.tabBarBorder,
-            height: isMobile ? 68 : 74,
-            paddingTop: 8,
-            paddingBottom: isMobile ? 10 : 8,
-          },
-          tabBarLabelStyle: {
-            fontFamily: 'Poppins_600SemiBold',
-            fontSize: 12,
-          },
-          tabBarIcon: ({ color, focused, size }) => (
-            <Ionicons
-              name={getTabIconName(route.name, focused)}
-              size={isMobile ? 24 : size}
-              color={color}
-            />
-          ),
-          sceneStyle: { backgroundColor: theme.background },
-        })}
-      >
-        <Tab.Screen name="Home" component={HomePage} />
-        <Tab.Screen name="Agendar" component={AgendamentoStack} />
-        <Tab.Screen name="Admin" component={AdminPage} />
-        <Tab.Screen name="Perfil" component={PerfilPage} />
-        <Tab.Screen name="Configurações" component={ConfiguracoesPage} />
-      </Tab.Navigator>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Login" component={LoginPage} />
+        <Stack.Screen name="Cadastro" component={CadastroPage} />
+        <Stack.Screen name="Main" component={MainTabs} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }
