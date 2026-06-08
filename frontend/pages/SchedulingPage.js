@@ -25,7 +25,7 @@ const GRID_GAP = 12;
 
 const INITIAL_STATE = {
   shop: {
-    name: 'Barbearia Premium',
+    name: 'Barbearia Reis',
     logoUrl: '',
     primaryColor: '#163B9D',
     accentColor: '#22B8B0',

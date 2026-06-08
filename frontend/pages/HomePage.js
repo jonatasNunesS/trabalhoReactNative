@@ -19,7 +19,7 @@ import { useAppTheme } from '../context/AppContext';
 
 const INITIAL_STATE = {
   shop: {
-    name: 'Barbearia Premium',
+    name: 'Barbearia Reis',
     logoUrl: '',
     primaryColor: '#1E40AF',
     accentColor: '#22B8B0',
