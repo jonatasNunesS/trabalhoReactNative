@@ -59,5 +59,17 @@ ALTER TABLE `horarios_barbeiro`
   ADD COLUMN IF NOT EXISTS `atualizado_em` DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
 -- ================================================================
+-- 5. USUÁRIO ADMINISTRADOR (seed de desenvolvimento)
+-- Cria um usuário admin apenas se não existir nenhum com esse e-mail.
+-- Senha em texto puro — adequado para dev; usar hash (bcrypt) em produção.
+-- ================================================================
+
+INSERT INTO `clientes` (nome, email, senha, telefone, tipo_usuario)
+SELECT 'Administrador', 'admin@barbearia.com', 'admin123', '11999999999', 'admin'
+WHERE NOT EXISTS (
+    SELECT 1 FROM `clientes` WHERE email = 'admin@barbearia.com'
+);
+
+-- ================================================================
 -- FIM DAS MIGRAÇÕES
 -- ================================================================

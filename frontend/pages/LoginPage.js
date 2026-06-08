@@ -15,6 +15,7 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppTheme } from '../context/AppContext';
+import { API_BASE_URL } from '../services/api';
 
 export default function LoginPage({ navigation }) {
   const { theme } = useAppTheme();
@@ -42,7 +43,7 @@ export default function LoginPage({ navigation }) {
 
     try {
       const response = await fetch(
-        'http://seu ip:3000/clientes/login',
+        `${API_BASE_URL}/clientes/login`,
         {
           method: 'POST',
           headers: {
@@ -60,8 +61,8 @@ export default function LoginPage({ navigation }) {
       console.log('STATUS:', response.status);
       console.log('DATA:', data);
 
-      if (!response.ok || data?.error) {
-        const mensagem = data?.error || 'Usuário ou senha inválidos';
+      if (!response.ok || data?.erro) {
+        const mensagem = data?.erro || data?.error || 'Usuário ou senha inválidos';
         setErroLogin(mensagem);
         setTimeout(() => {
           Alert.alert('Falha no login', mensagem);

@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 
 import { useAppTheme } from '../context/AppContext';
+import { API_BASE_URL } from '../services/api';
 
 export default function CadastroPage({ navigation }) {
   const { theme } = useAppTheme();
@@ -87,7 +88,7 @@ export default function CadastroPage({ navigation }) {
 
     try {
       const response = await fetch(
-        'http://seu ip:3000/clientes',
+        `${API_BASE_URL}/clientes`,
         {
           method: 'POST',
           headers: {
@@ -107,9 +108,9 @@ export default function CadastroPage({ navigation }) {
       console.log('STATUS:', response.status);
       console.log('DATA:', data);
 
-      if (!response.ok || data?.error) {
+      if (!response.ok || data?.erro) {
         const mensagem =
-          data?.error || 'Erro ao criar conta. Tente novamente.';
+          data?.erro || data?.error || 'Erro ao criar conta. Tente novamente.';
         setErroCadastro(mensagem);
         return;
       }
